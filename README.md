@@ -94,9 +94,11 @@ export class HelloworldController {
 5. [[NestJS 帶你飛！] DAY03 - Controller (上) - iT 邦幫忙::一起幫忙解決難題，拯救 IT 人的一天](https://ithelp.ithome.com.tw/articles/10266653)
 
 # 編輯記錄
-1. 2023-05-15 10:30 : 建立 Repo。
-2. 2023-05-15 11:30 : 完成 `使用 Node.js 建立 API` 的目標。
-3. 2023-05-15 12:10 : 完成 `使用 ngrok 供外部連入` 的目標。
-4. 2023-05-15 13:50 : 完成 `使用 Node.js 與 NestJS 建立 API` 的目標。
-5. 2023-05-15 14:00 : 整理 `README.md` 並完成課題。
-6. 2023-05-15 14:20 : 標記課題編號。
+1. 2023-05-15
+    - 建立 Repo。
+    - 完成 `使用 Node.js 建立 API` 的目標。
+    - 完成 `使用 ngrok 供外部連入` 的目標。
+    - 完成 `使用 Node.js 與 NestJS 建立 API` 的目標。
+    - 整理 `README.md` 並完成課題。
+    - 標記課題編號。
+    - 整理 `README.md`。
