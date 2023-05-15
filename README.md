@@ -1,7 +1,7 @@
 # Nodejs-Practice
 這是個人學習與練習 Node.js 所使用的 Repo。
 
-# 課題
+# 課題 Topic. 1
 1. 使用 `Node.js` 與 `NestJS` 建立 API
     - 以 `4000` 為 port
     - API 名為 `helloword` 並採用 `GET`
@@ -99,3 +99,4 @@ export class HelloworldController {
 3. 2023-05-15 12:10 : 完成 `使用 ngrok 供外部連入` 的目標。
 4. 2023-05-15 13:50 : 完成 `使用 Node.js 與 NestJS 建立 API` 的目標。
 5. 2023-05-15 14:00 : 整理 `README.md` 並完成課題。
+6. 2023-05-15 14:20 : 標記課題編號。
