@@ -33,6 +33,6 @@ pm2 start dist/main.js --name Topic3 -i 4
 # 編輯記錄
 1. 2023-05-16
     - 開始進行 Topic. 3。
-    - 完成 `使用 PM2 啟動 cluster 模式` 的目標。
-    - 完成 `使 PM2 啟動 4 個 application process` 的目標。
+    - 完成 `使用 'PM2' 啟動 'cluster' 模式` 的目標。
+    - 完成 `使 'PM2' 啟動 4 個 application process` 的目標。
     - 整理 `README.md` 並完成課題。
