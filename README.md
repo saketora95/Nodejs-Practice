@@ -96,9 +96,11 @@ export class HelloworldController {
 # 編輯記錄
 1. 2023-05-15
     - 建立 Repo。
-    - 完成 `使用 Node.js 建立 API` 的目標。
-    - 完成 `使用 ngrok 供外部連入` 的目標。
-    - 完成 `使用 Node.js 與 NestJS 建立 API` 的目標。
+    - 完成 `使用 'Node.js' 建立 API` 的目標。
+    - 完成 `使用 'ngrok' 供外部連入` 的目標。
+    - 完成 `使用 'Node.js' 與 'NestJS' 建立 API` 的目標。
     - 整理 `README.md` 並完成課題。
     - 標記課題編號。
+    - 整理 `README.md`。
+2. 2023-05-16
     - 整理 `README.md`。
