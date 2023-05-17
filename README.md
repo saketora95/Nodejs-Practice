@@ -4,7 +4,7 @@
 # 課題 Topic. 3
 1. 使用 `PM2` 啟動 `cluster` 模式
 2. 接著使 `PM2` 啟動 4 個 application process
-3. [2023-05-17 追加] 找尋使用 `PM2` 啟動 4 個 application process 時，令 4 者名稱不同的方法。
+3. `[2023-05-17 追加]` 找尋使用 `PM2` 啟動 4 個 application process 時，令 4 者名稱不同的方法。
 
 # 練習記錄
 ## 安裝環境
@@ -31,7 +31,10 @@ pm2 start dist/main.js --name Topic3 -i 4
 2. 修改 `ecosystem.config.js` 檔案：
     1. 更改 `module.exports.apps.name` 為 `topic3`
     2. 更改 `module.exports.apps.script` 為 `./dist/main.js` 以符合實際的路徑
-3. 於 `module.exports.apps` 添加多個 `array`：
+    3. 添加 3 個 `array` 以符合啟動 4 個 application process 的目標
+    4. 在環境變數設置每個 app 的 port
+        - 原先是在 `src\main.ts` 中直接指定為 `4000` port，如果直接沿用的話會導致重複使用的錯誤。
+![重複使用了 4000 port 導致錯誤](Image/03.png)
 ```
 module.exports = {
   apps : [
@@ -40,53 +43,38 @@ module.exports = {
       script : "./dist/main.js",
       instances : 4,
       exec_mode : "cluster",
+      env: {
+        "PORT": 4000,
+      }
     },
     {
       name   : "Topic3-1",
       script : "./dist/main.js",
+      env: {
+        "PORT": 4001,
+      }
     },
     {
       name   : "Topic3-2",
       script : "./dist/main.js",
+      env: {
+        "PORT": 4002,
+      }
     },
     {
       name   : "Topic3-3",
       script : "./dist/main.js",
+      env: {
+        "PORT": 4003,
+      }
     },
   ]
 }
 ```
-4. 在 `dist` 資料夾中建立另外三個資料夾 `app1`、`app2` 與 `app3`
-5. 將 `dist` 資料夾中的檔案（如 `main.js` 等）各複製一份到前述的三個資料夾內
-6. 修改 `app1`、`app2` 與 `app3` 資料夾內的 `main.js`，將 `await app.listen(4000);` 使用的 port 設置為不同的數值
-    - 重複使用了 4000 port 將導致錯誤，進而變成不斷重啟。
-    ![重複使用了 4000 port 導致錯誤](Image/03.png)
-7. 調整 `module.exports.apps` 的路徑配合上述調整：
-```
-module.exports = {
-  apps : [
-    {
-      name   : "Topic3-0",
-      script : "./dist/main.js",
-      instances : 4,
-      exec_mode : "cluster",
-    },
-    {
-      name   : "Topic3-1",
-      script : "./dist/app1/main.js",
-    },
-    {
-      name   : "Topic3-2",
-      script : "./dist/app2/main.js",
-    },
-    {
-      name   : "Topic3-3",
-      script : "./dist/app3/main.js",
-    },
-  ]
-}
-```
-8. 於終端機中執行 `pm2 start ecosystem.config.js` 啟動
+3. 修改 `src\main.ts`，將 `await app.listen(4000);` 調整為 `await app.listen(process.env.PORT);`
+    - 同樣是為了解決重複使用 `4000` port 的問題，將其設定為讀取環境變數。
+4. 於終端機中執行 `npm run build`，以更新 `dist` 資料夾內的檔案
+4. 於終端機中執行 `pm2 start ecosystem.config.js` 啟動
 ![啟動多個 App](Image/04.png)
 
 # 參考資料
@@ -104,3 +92,4 @@ module.exports = {
 2. 2023-05-17
     - 追加 `找尋使用 'PM2' 啟動 4 個 application process 時，令 4 者名稱不同的方法` 的目標。
     - 完成 `找尋使用 'PM2' 啟動 4 個 application process 時，令 4 者名稱不同的方法` 的目標。
+    - 調整為較合宜的方式，以完成 `找尋使用 'PM2' 啟動 4 個 application process 時，令 4 者名稱不同的方法` 的目標。

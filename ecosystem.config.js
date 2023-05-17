@@ -5,18 +5,30 @@ module.exports = {
       script : "./dist/main.js",
       instances : 4,
       exec_mode : "cluster",
+      env: {
+        "PORT": 4000,
+      }
     },
     {
       name   : "Topic3-1",
-      script : "./dist/app1/main.js",
+      script : "./dist/main.js",
+      env: {
+        "PORT": 4001,
+      }
     },
     {
       name   : "Topic3-2",
-      script : "./dist/app2/main.js",
+      script : "./dist/main.js",
+      env: {
+        "PORT": 4002,
+      }
     },
     {
       name   : "Topic3-3",
-      script : "./dist/app3/main.js",
+      script : "./dist/main.js",
+      env: {
+        "PORT": 4003,
+      }
     },
   ]
 }
