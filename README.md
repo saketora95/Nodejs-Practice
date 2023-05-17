@@ -1,87 +1,68 @@
 # Nodejs-Practice
 這是個人學習與練習 Node.js 所使用的 Repo。
 
-# 課題 Topic. 4
-1. 安裝 `Docker` 與 `Docker Compose`
-2. 撰寫 `Dockerfile`
-3. 使用 `docker-compose` 啟動開發環境
+# 課題 Topic. 5
+1. 實作可以對 `Redis server` 進行 `SET`、`GET` 與 `DELETE` 操作的 API
+2. 對 `Redis server` 設定帳號密碼
+3. 使用 `Docker` 進行部屬
 
 # 練習記錄
-## 安裝環境
-1. 個人是使用 `Windows 11` 環境
-2. 於 [Docker 官方網站](https://www.docker.com/) 中下載 `Docker Desktop`
-3. 安裝 `Docker Desktop`
-4. 依照指示於終端機中執行 `wsl --update` 以安裝 `Windows Subsystem for Linux`
+## 安裝 Redis
+1. 於終端機中執行 `docker pull redis`，透過 `Docker` 進行安裝
+2. 於終端機中執行 `docker run --name redis-lab -p 6379:6379 -d redis`，使 Redis container 運作
+3. 為了直接對 container 進行操作，於終端機中執行 `docker exec -it [CONTAINER ID] bash`
+    - 可以透過 `docker ps` 確認 `CONTAINER ID`。
+4. 於終端機中執行 `redis-cli`，進入 `Redis` 的操作環境
+5. 於終端機中執行 `ping`，確認是否回傳 `PONG`
 
-## 撰寫 Dockerfile
-1. 建立 `Dockerfile` 檔案
-2. 在 `Dockerfile` 檔案中填入以下內容：
+![確認 Redis 的運作](Image/01.png)
+
+## 建立 API
+### API 基本準備
+1. 於終端機中執行下列三行指令，建立 `game-character` 的基本架構
 ```
-# 使用的 Image 名稱
-FROM node:18
+nest generate module features/game-character
+nest generate controller features/game-character
+nest generate service features/game-character
+```
+2. 沿用 `video-info` 的設定，模擬出類似的功能
 
-# 說明此 Dockerfile 的撰寫與維護者
-MAINTAINER Kai
-
-# 建立 App 的資料夾
-WORKDIR /usr/src/app
-
-# 複製內容（package.json 與 package-lock.json）
-COPY package*.json ./
-
-# 安裝所需套件
-RUN npm install
-
-# 複製當前所在的資料到 Docker 容器之中
-COPY . .
-
-# 建置專案
-RUN npm run build
-
-# 透過建置後的檔案啟動專案
-CMD [ "node", "dist/main.js" ]
+### NestJS 與 Redis
+1. 為了使 NestJS 可以與 Redis 互動，於終端機中執行下列四行指令，安裝相關套件：
+```
+npm install cache-manager --save
+npm install cache-manager-redis-store --save
+npm install @types/cache-manager -D
+npm install @nestjs/cache-manager cache-manager
+```
+2. 於終端機中執行 `nest generate module db/redis-cache`
+3. 修改前一步驟中建立的 `src\db\redis-cache\redis-cache.module.ts`
+```
 ```
 
-## 建置 Docker 容器與測試
-1. 於終端機中執行 `docker build -t topic4 .` 並等候建置完成
-    - `-t topic4` 用於設定容器名稱為 `topic4`。
-2. 於終端機中執行 `docker image ls` 確認
-![Docker 容器建置結果](Image/01.png)
-3. 於終端機中執行 `docker run -d -p80:4000 topic4`
-    - `-d` : 於背景執行。
-    - `-p` : 設置 port，`4000` 對應於先前練習時使用的 port。
-4. 連入 `http://localhost/doc` 即可看到先前在 `Topic. 2` 中設置的 Swagger 文件
-    - 因 `-p80:4000` 的設定，使 `Docker` 會將容器的 `4000` port 映射至主機的 `80` port
 
-![連入透過 Docker 啟動的專案](Image/02.png)
-
-## 使用 `Docker Compose` 啟動開發環境
-1. 建立 `docker-compose.yml` 檔案
-2. 在 `docker-compose.yml` 檔案中填入以下內容：
+1. 修改 `src\features\game-character\game-character.service.ts`：
+    - 課題要求中要進行 `SET`、`GET` 與 `DELETE`，功能依序是 `新增/更新`、`取得資料` 以及 `刪除`。
 ```
-version: '1'
-services:
-  node:
-    build:
-      dockerfile: Dockerfile
-    ports:
-      - 80:4000
+1
 ```
-3. 於終端機中執行 `docker-compose up` 啟動
+1. 1
 
-![使用 Docker Compose 啟動成功](Image/03.png)
 
 # 參考資料
-1. [Ultimate Guide: NestJS Dockerfile For Production [2022]](https://www.tomray.dev/nestjs-docker-production)
-2. [Docker Desktop WSL 2 backend on Windows | Docker Documentation](https://docs.docker.com/desktop/windows/wsl/)
-3. [Day5: 實作撰寫第一個 Dockerfile - iT 邦幫忙::一起幫忙解決難題，拯救 IT 人的一天](https://ithelp.ithome.com.tw/articles/10191016)
-4. [What does "copy . ." mean? - Docker Hub - Docker Community Forums](https://forums.docker.com/t/what-does-copy-mean/74121/6)
-5. [【Day 3】 -  Docker 基本指令操作 - iT 邦幫忙::一起幫忙解決難題，拯救 IT 人的一天](https://ithelp.ithome.com.tw/articles/10186431)
+1. [安裝 WSL | Microsoft Learn](https://learn.microsoft.com/zh-tw/windows/wsl/install)
+2. [使用WSL2在Windows下快速打造Linux開發環境(含Docker) - iT 邦幫忙::一起幫忙解決難題，拯救 IT 人的一天](https://ithelp.ithome.com.tw/articles/10255920)
+3. [Getting started with Redis | Redis](https://redis.io/docs/getting-started/)
+4. [[Redis] 使用 Docker 安裝 Redis ~ m@rcus 學習筆記](https://marcus116.blogspot.com/2019/02/how-to-run-redis-in-docker.html)
+5. [redis/node-redis: Redis Node.js client](https://github.com/redis/node-redis)
+6. https://www.tomray.dev/nestjs-caching-redis
 
 # 編輯記錄
 1. 2023-05-16
-    - 開始進行 Topic. 4。
-    - 完成 `安裝 'Docker' 與 'Docker Compose'` 的目標。
-    - 完成 `撰寫 'Dockerfile'` 的目標。
-    - 完成 `使用 'Docker Compose' 啟動開發環境` 的目標。
+    - 開始進行 Topic. 5。
+2. 待進行事項
+    - 完成 `實作可以對 'Redis server' 進行 'SET'、'GET' 與 'DELETE' 操作的 API` 的目標。
+    - 完成 `對 'Redis server' 設定帳號密碼` 的目標。
+    - 完成 `使用 'Docker' 進行部屬` 的目標。
     - 整理 `README.md` 並完成課題。
+
