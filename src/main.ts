@@ -10,7 +10,8 @@ async function bootstrap() {
     // 設置 swagger
     setupSwagger(app);
 
-    await app.listen(4000);
+
+    await app.listen(process.env.PORT);
 }
 
 // 設置 swagger
