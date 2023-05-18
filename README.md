@@ -58,7 +58,7 @@ CMD [ "pm2-runtime", "start", "ecosystem.config.js" ]
 
 ![連入透過 Docker 啟動的專案](Image/02.png)
 
-### 使用 `Docker Compose` 啟動開發環境 (此段仍為舊版本，尚未編寫完成)
+## 使用 `Docker Compose` 啟動開發環境
 1. 建立 `docker-compose.yml` 檔案
 2. 在 `docker-compose.yml` 檔案中填入以下內容：
 ```
@@ -92,3 +92,5 @@ services:
 2. 2023-05-17
     - 追加 `使用 'Docker' 與 'docker-compose' 啟動 'Topic-3' 中的 'PM2' 環境` 的目標。
     - 完成 `使用 'Docker' 啟動 'Topic-3' 中的 'PM2' 環境` 的目標。
+3. 2023-05-18
+    - 完成 `使用 'docker-compose' 啟動 'Topic-3' 中的 'PM2' 環境` 的目標。
