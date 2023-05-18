@@ -97,3 +97,4 @@ services:
     - 完成 `使用 'Docker' 啟動 'Topic-3' 中的 'PM2' 環境` 的目標。
 3. 2023-05-18
     - 完成 `使用 'docker-compose' 啟動 'Topic-3' 中的 'PM2' 環境` 的目標。
+    - 整理 `README.md` 並完成課題。
