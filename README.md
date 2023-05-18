@@ -62,13 +62,16 @@ CMD [ "pm2-runtime", "start", "ecosystem.config.js" ]
 1. 建立 `docker-compose.yml` 檔案
 2. 在 `docker-compose.yml` 檔案中填入以下內容：
 ```
-version: '1'
+version: '3.8'
 services:
   node:
     build:
       dockerfile: Dockerfile
     ports:
       - 80:4000
+      - 4001:4001
+      - 4002:4002
+      - 4003:4003
 ```
 3. 於終端機中執行 `docker-compose up` 啟動
 
