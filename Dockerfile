@@ -1,20 +1,23 @@
-# Base image
-FROM node:18
+# 使用的 Image 名稱
+FROM keymetrics/pm2:18-alpine
 
-# Create app directory
+# 說明此 Dockerfile 的撰寫與維護者
+LABEL maintainer="Kai"
+
+# 建立 App 的資料夾
 WORKDIR /usr/src/app
 
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
+# 複製內容（package.json 與 package-lock.json）
 COPY package*.json ./
 
-# Install app dependencies
+# 安裝所需套件
 RUN npm install
 
-# Bundle app source
+# 複製當前所在的資料到 Docker 容器之中
 COPY . .
 
-# Creates a "dist" folder with the production build
+# 建置專案
 RUN npm run build
 
-# Start the server using the production build
-CMD [ "node", "dist/main.js" ]
+# 透過建置後的檔案啟動專案
+CMD [ "pm2-runtime", "start", "ecosystem.config.js" ]

@@ -60,7 +60,9 @@ npm install @nestjs/cache-manager cache-manager
 # 編輯記錄
 1. 2023-05-16
     - 開始進行 Topic. 5。
-2. 待進行事項
+2. 2023-05-18
+    - 更新部分檔案以符合 Topic. 3 與 Topic. 4 的變動。
+3. 待進行事項
     - 完成 `實作可以對 'Redis server' 進行 'SET'、'GET' 與 'DELETE' 操作的 API` 的目標。
     - 完成 `對 'Redis server' 設定帳號密碼` 的目標。
     - 完成 `使用 'Docker' 進行部屬` 的目標。

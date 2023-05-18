@@ -1,7 +1,10 @@
-version: '1'
+version: '3.8'
 services:
   node:
     build:
       dockerfile: Dockerfile
     ports:
       - 80:4000
+      - 4001:4001
+      - 4002:4002
+      - 4003:4003
