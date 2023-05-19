@@ -212,4 +212,5 @@ CacheModule.register({
     - 完成 `對 'Redis server' 設定帳號密碼` 的目標。
     - 完成 `使用 'Docker' 進行部屬` 的目標。
     - 整理 `README.md` 並完成課題。
+    - 完成 `ACL_Note.MD`。
 
