@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GameCharacterService } from './game-character.service';
+import { RedisApiService } from './redis-api.service';
 
-describe('GameCharacterService', () => {
-  let service: GameCharacterService;
+describe('RedisApiService', () => {
+  let service: RedisApiService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GameCharacterService],
+      providers: [RedisApiService],
     }).compile();
 
-    service = module.get<GameCharacterService>(GameCharacterService);
+    service = module.get<RedisApiService>(RedisApiService);
   });
 
   it('should be defined', () => {

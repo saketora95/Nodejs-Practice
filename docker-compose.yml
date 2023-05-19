@@ -1,10 +1,28 @@
+# docker-compose 版本號碼
 version: '3.8'
+
 services:
+
+  # NestJS container 
   node:
     build:
       dockerfile: Dockerfile
     ports:
       - 80:4000
-      - 4001:4001
-      - 4002:4002
-      - 4003:4003
+    depends_on:
+      - redis
+  
+  # Redis container 
+  redis:
+    image: redis:7.0-alpine
+    ports:
+      - 6379:6379
+    volumes:
+      - redis:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - ./users.acl:/usr/local/etc/redis/users.acl
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf" ]
+
+volumes:
+  redis:
+    driver: local
