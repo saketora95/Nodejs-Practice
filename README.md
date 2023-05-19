@@ -154,11 +154,53 @@
 
 ![透過 API 刪除 Redis 資料](Image/05.png)
 
+## 對 Redis server 設定帳號密碼
+### 建立設定檔
+1. 建立 `redis.conf` 並填入 `aclfile /usr/local/etc/redis/users.acl`，使其讀取權限設定檔
+2. 建立 `users.acl` 並填入：
+    - `user default off` 
+        - 關閉預設使用者的使用，避免出現以預設使用者操作的情形。
+    - `user tora >1234 on ~* &* +@all`
+        - `user tora`：設置新的 user
+        - `>1234`：設置此 user 可以使用的密碼
+        - `on`：啟用 user
+        - `~*`：設置此 user 可以使用所有可能的 key
+        - `&*`：設置此 user 可以使用所有可能的 channel 
+        - `+@all`：設置此 user 可以使用所有可能的指令
+3. 修改 `docker-compose.yml` 檔案：
+    - 於 Redis container 下：
+        - `volumes` 追加掛載 `./redis.conf:/usr/local/etc/redis/redis.conf` 與 `./users.acl:/usr/local/etc/redis/users.acl`
+        - 設置 `command: ["redis-server", "/usr/local/etc/redis/redis.conf" ]`
+
+### 調整 CacheModule.register()
+修改 `src\app.module.ts` 中的 `CacheModule.register()`，令其透過設定的帳號與密碼進行驗證：
+```
+CacheModule.register({
+    isGlobal: true,
+    store: redisStore,
+    host: "redis",
+    port: "6379",
+    // 設置的 user 帳號與密碼
+    user: "tora",
+    password: "1234",
+}),
+```
+
+## 測試
+1. 於終端機中執行 `docker-compose up --build` 建置
+2. 執行 API 進行測試
+    - 於 API 中均有設置 `console.log`，透過其記錄觀察呼叫與執行是否順利。
+
+![API 給予回應](Image/06.png)
+
 # 參考資料
 1. [安裝 WSL | Microsoft Learn](https://learn.microsoft.com/zh-tw/windows/wsl/install)
 2. [Getting started with Redis | Redis](https://redis.io/docs/getting-started/)
 3. [redis/node-redis: Redis Node.js client](https://github.com/redis/node-redis)
-4. https://www.tomray.dev/nestjs-caching-redis
+4. [Ultimate Guide: NestJS Caching With Redis [2022]](https://www.tomray.dev/nestjs-caching-redis)
+5. [NestJS + Redis + Postgres Local Development With Docker Compose](https://www.tomray.dev/nestjs-docker-compose-postgres)
+6. [ACL | Redis](https://redis.io/docs/management/security/acl/)
+7. [RedisInsight | The Best Redis GUI](https://redis.com/redis-enterprise/redis-insight/)
 
 # 編輯記錄
 1. 2023-05-16
@@ -166,7 +208,7 @@
 2. 2023-05-18
     - 更新部分檔案以符合 Topic. 3 與 Topic. 4 的變動。
     - 完成 `實作可以對 'Redis server' 進行 'SET'、'GET' 與 'DELETE' 操作的 API` 的目標。
-3. 待進行事項
+3. 2023-05-19
     - 完成 `對 'Redis server' 設定帳號密碼` 的目標。
     - 完成 `使用 'Docker' 進行部屬` 的目標。
     - 整理 `README.md` 並完成課題。
