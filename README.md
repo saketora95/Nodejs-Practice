@@ -129,23 +129,29 @@
 ## 測試 API 運行
 ### 建置與啟動環境
 於終端機中執行 `docker-compose up --build` 進行建置並啟動環境。
+
 ![啟動 NestJS 與 Redis 的 Container](Image/01.png)
 
 ### GET
 1. 透過 `Docker Desktop`，於 `Redis container` 的終端機中執行 `redis-cli`，進入 `Redis` 的 CLI
 2. 於同一處執行 `set pen 10`，創建一筆資料供稍後測試
+
 ![在 redis-cli 中創建測試資料](Image/02.png)
+
 3. 連入 `http://localhost/redis-api/pen` 進行測試
+
 ![透過 API 取得 Redis 資料](Image/03.png)
 
 ### POST
 1. 使用 `POST`，對 `http://localhost/redis-api` 發送 `{"key": "notebook", "value": 30}` 的資料
 2. 於 `Redis` 的 CLI 中執行 `get notebook` 確認 API 運作狀況
+
 ![透過 API 設定 Redis 資料](Image/04.png)
 
 ### DEL
 1. 連入 `http://localhost/redis-api/DEL/pen` 進行測試
 2. 於 `Redis` 的 CLI 中執行 `get pen` 確認 API 運作狀況
+
 ![透過 API 刪除 Redis 資料](Image/05.png)
 
 # 參考資料

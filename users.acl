@@ -1,2 +1,2 @@
-
-user tora >1234 on +@all
+user default off
+user tora >1234 on ~* &* +@all
