@@ -8,4 +8,5 @@
 3. https://github.com/saketora95/Nodejs-Practice/tree/Topic-3
 4. https://github.com/saketora95/Nodejs-Practice/tree/Topic-4
 5. https://github.com/saketora95/Nodejs-Practice/tree/Topic-5
-6. https://github.com/saketora95/Nodejs-Practice/tree/Topic-6 (未建置)
+6. https://github.com/saketora95/Nodejs-Practice/tree/Topic-6
+7. https://github.com/saketora95/Nodejs-Practice/tree/Topic-7
