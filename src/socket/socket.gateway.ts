@@ -22,10 +22,10 @@ export class SocketGateway implements OnModuleInit {
         });
     }
 
-    @SubscribeMessage('newMsg')
+    @SubscribeMessage('newMessage')
     onNewMessage(@MessageBody() body: any) {
         console.log(body);
-        this.server.emit('onMsg', {
+        this.server.emit('onMessage', {
             title: 'Message from server',
             content: body
         });
