@@ -4,10 +4,8 @@ import {
     WebSocketServer,
     OnGatewayConnection,
     OnGatewayDisconnect,
-    WsResponse,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-// import { Server } from 'ws';
 
 @WebSocketGateway({
     namespace: '/chat',
@@ -27,7 +25,6 @@ export class MessageGateway implements OnGatewayConnection, OnGatewayDisconnect 
     public handleMessage(client: Socket, payload: any): void {
         console.log(`Instance ${process.env.pm_id}\'s Client ${client.id} Emit [ msgToServer ]`)
         console.log(`- User [ ${payload.name} ] from room [ ${payload.room} ] : [ ${payload.text} ]`)
-        this.server.emit('aaa', 'aaa');
         this.server.to(payload.room).emit('msgToClient', payload);
         console.log(`- Emit [ msgToClient ] to room [ ${payload.room} ] : [ ${payload.text} ]`)
     }
@@ -37,7 +34,6 @@ export class MessageGateway implements OnGatewayConnection, OnGatewayDisconnect 
         console.log(`Instance ${process.env.pm_id}\'s Client ${client.id} Emit [ joinRoom ] : ${room}`)
         client.join(room);
         client.emit('joinedRoom', room);
-        console.log(this.server.emit('aaa', 'bbb'));
     }
 
     @SubscribeMessage('leaveRoom')

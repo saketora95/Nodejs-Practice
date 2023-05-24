@@ -9,7 +9,13 @@ import { join } from 'path';
 
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
-    app.useWebSocketAdapter(new RedisIoAdapter(app));
+    
+    // Adapter
+    const redisIoAdapter = new RedisIoAdapter(app);
+    await redisIoAdapter.connectToRedis();
+    app.useWebSocketAdapter(redisIoAdapter);
+
+    // 簡易 Client
     app.useStaticAssets(join(__dirname, '..', 'resource'));
 
     // 設置 swagger
