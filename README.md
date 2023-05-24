@@ -11,8 +11,7 @@
 4. 透過 `docker` 部署驗收環境
 
 # 練習記錄
-## 建置環境
-### Server
+## 建置 Server 環境
 1. 於終端機中執行 `npm i --save socket.io-redis` 安裝相關套件
 2. 建立 `src\adapters\redis.adapter.ts` 檔案，透過 `Redis Adapter` 建立 IO server
 ```
@@ -70,14 +69,14 @@ export class RedisIoAdapter extends IoAdapter {
     app.useStaticAssets(join(__dirname, '..', 'resource'));
     ```
 
-### Client
+## 建置 Client 環境
 1. 建立 `resource` 資料夾（對應於 Server `src\main.ts` 檔案中，`useStaticAssets` 所給予的路徑）
 2. 建立 `resource\index.html`、`resource\main.js` 與 `resource\styles.css` 檔案
     - 為供測試，製作簡易的頁面。
         - 供使用者自訂自己的名稱、進入的聊天室（room）與發送的訊息。
         - 顯示接收到的訊息。
 
-### 環境測試
+## 環境測試
 1. 於終端機中執行 `docker-compose up --build` 建置並啟動環境
 2. 開啟四個瀏覽器分頁，連入 `http://localhost/`
 3. 分別設置名稱為 `A User`、`B User`、`C User` 與 `D User`
@@ -91,7 +90,17 @@ export class RedisIoAdapter extends IoAdapter {
 
 至此，測試結果符合預期，完成環境的基礎建置。
 
-{"path": "/socket.io", "forceNew": true, "reconnectionAttempts": 3, "timeout": 2000, "transports": ["websocket"]}
+## 聊天室進出訊息
+1. 修改 `src\message-event\message.gateway.ts` 檔案，使 server 在執行 `joinRoom` 與 `leaveRoom` 時發送 `emit`，將加入或離開 room 的訊息發送給相關的 client。
+2. 修改 `resource\main.js` 檔案，使 client 在加入或離開 room 時發送足夠的資訊給 server，並能處理 server 發送來的加入或離開 room 的訊息。
+
+![簡要顯示 room 的加入與離開訊息](Image/03.png)
+
+## room 人數顯示
+1. 修改 `src\message-event\message.gateway.ts` 檔案，使用 `(await this.server.in(payload.room).fetchSockets()).length` 取得當前 room 的人數，並結合 `roomMsg` 的 `emit` 中發送給相關 client。
+2. 修改 `resource\index.html` 與 `resource\main.js`，使其能對應 server 發送來的訊息進行處理。
+
+![如預期顯示聊天室當前的 client 數量](Image/04.png)
 
 # 參考資料
 1. [Usage with PM2 | Socket.IO](https://socket.io/docs/v4/pm2/)
@@ -105,3 +114,4 @@ export class RedisIoAdapter extends IoAdapter {
 # 編輯記錄
 1. 2023-05-24
     - 開始進行 Topic. 8.1。
+    - 完成 Topic. 8.1。

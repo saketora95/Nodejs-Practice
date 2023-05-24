@@ -7,6 +7,8 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 
+import { RedisService } from 'nestjs-redis';
+
 @WebSocketGateway({
     namespace: '/chat',
     cors: {
@@ -18,7 +20,7 @@ import { Socket, Server } from 'socket.io';
     allowEIO3: true
 })
 export class MessageGateway implements OnGatewayConnection, OnGatewayDisconnect {
-
+    
     @WebSocketServer() server: Server;
 
     @SubscribeMessage('msgToServer')
@@ -30,17 +32,34 @@ export class MessageGateway implements OnGatewayConnection, OnGatewayDisconnect 
     }
 
     @SubscribeMessage('joinRoom')
-    public joinRoom(client: Socket, room: string): void {
-        console.log(`Instance ${process.env.pm_id}\'s Client ${client.id} Emit [ joinRoom ] : ${room}`)
-        client.join(room);
-        client.emit('joinedRoom', room);
+    public async joinRoom(client: Socket, payload: any): Promise<void> {
+        console.log(`Instance ${process.env.pm_id}\'s Client ${client.id} Emit [ joinRoom ] : ${payload.room}`)
+        client.join(payload.room);
+        client.emit('joinedRoom', payload.room);
+
+        payload.text = `加入了 [ ${payload.room} ] 聊天室`;
+        payload.count = (await this.server.in(payload.room).fetchSockets()).length;
+        this.server.to(payload.room).emit('roomMsg', payload);
     }
 
     @SubscribeMessage('leaveRoom')
-    public leaveRoom(client: Socket, room: string): void {
-        console.log(`Instance ${process.env.pm_id}\'s Client ${client.id} Emit [ leaveRoom ] : ${room}`)
-        client.leave(room);
-        client.emit('leftRoom', room);
+    public async leaveRoom(client: Socket, payload: any): Promise<void> {
+        // const currentCount = await this.cacheService.get(payload.room);
+        // if (currentCount == null) {
+        //     await this.cacheService.set(payload.room, 0);
+        //     payload.count = 0;
+        // } else {
+        //     await this.cacheService.set(payload.room, parseInt(currentCount) - 1);
+        //     payload.count = parseInt(currentCount) - 1;
+        // }
+
+        console.log(`Instance ${process.env.pm_id}\'s Client ${client.id} Emit [ leaveRoom ] : ${payload.room}`)
+        client.leave(payload.room);
+        client.emit('leftRoom', payload.room);
+        
+        payload.text = `離開了 [ ${payload.room} ] 聊天室`;
+        payload.count = (await this.server.in(payload.room).fetchSockets()).length;
+        this.server.to(payload.room).emit('roomMsg', payload);
     }
 
     public handleDisconnect(client: Socket): void {

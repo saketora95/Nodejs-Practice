@@ -2,7 +2,7 @@ const app = new Vue({
     el: '#app',
     data: {
         title: 'NestJS Chat Real Time',
-        name: '',
+        name: 'Default User Name',
         text: '',
         selected: 'general',
         messages: [],
@@ -21,14 +21,22 @@ const app = new Vue({
             "roomB",
             "roomC",
             "roomD"
-        ]
+        ],
+        isDisabled: true,
+        clientCount: 0
     },
     methods: {
 
         onChange(event) {
-            this.socket.emit('leaveRoom', this.activeRoom);
+            this.socket.emit('leaveRoom', {
+                name: this.name,
+                room: this.activeRoom
+            });
             this.activeRoom = event.target.value;
-            this.socket.emit('joinRoom', this.activeRoom);
+            this.socket.emit('joinRoom', {
+                name: this.name,
+                room: this.activeRoom
+            });
         },
     
         sendMessage() {
@@ -53,9 +61,23 @@ const app = new Vue({
 
         check() {
             if (this.isMemberOfActiveRoom) {
-                this.socket.emit('leaveRoom', this.activeRoom);
+                this.socket.emit('leaveRoom', {
+                    name: this.name,
+                    room: this.activeRoom
+                });
             } else {
-                this.socket.emit('joinRoom', this.activeRoom);
+                this.socket.emit('joinRoom', {
+                    name: this.name,
+                    room: this.activeRoom
+                });
+            }
+        },
+
+        onNameChange(event) {
+            if (this.name == '') {
+                this.isDisabled = true;
+            } else {
+                this.isDisabled = false;
             }
         }
     },
@@ -69,12 +91,16 @@ const app = new Vue({
     created() {
         this.activeRoom = this.selected;
         this.socket = io('http://localhost/chat', {transports: ['websocket']});
+
         this.socket.on('msgToClient', (message) => {
             console.log(message);
             this.receivedMessage(message);
         });
-        this.socket.on('auto-response', (...args) => {
-            console.log(args);
+
+        this.socket.on('roomMsg', (message) => {
+            console.log(message);
+            this.receivedMessage(message);
+            this.clientCount = message.count;
         });
     
         this.socket.on('connect', () => {
