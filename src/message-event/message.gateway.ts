@@ -7,8 +7,6 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 
-import { RedisService } from 'nestjs-redis';
-
 @WebSocketGateway({
     namespace: '/chat',
     cors: {
@@ -44,15 +42,6 @@ export class MessageGateway implements OnGatewayConnection, OnGatewayDisconnect 
 
     @SubscribeMessage('leaveRoom')
     public async leaveRoom(client: Socket, payload: any): Promise<void> {
-        // const currentCount = await this.cacheService.get(payload.room);
-        // if (currentCount == null) {
-        //     await this.cacheService.set(payload.room, 0);
-        //     payload.count = 0;
-        // } else {
-        //     await this.cacheService.set(payload.room, parseInt(currentCount) - 1);
-        //     payload.count = parseInt(currentCount) - 1;
-        // }
-
         console.log(`Instance ${process.env.pm_id}\'s Client ${client.id} Emit [ leaveRoom ] : ${payload.room}`)
         client.leave(payload.room);
         client.emit('leftRoom', payload.room);
