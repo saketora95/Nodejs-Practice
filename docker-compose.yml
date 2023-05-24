@@ -4,43 +4,52 @@ version: '3.8'
 services:
 
   # NestJS container 
-  node:
-    build:
-      dockerfile: Dockerfile
-    ports:
-      - 80:4000
-    depends_on:
-      - redis
-      - maria
-    networks:
-      - nest-chat-network
+  # node:
+  #   build:
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - 80:4000
+  #   depends_on:
+  #     - redis
+  #     - maria
+  #   networks:
+  #     - nest-chat-network
   
   # Redis container 
-  redis:
-    image: redis:7.0-alpine
-    ports:
-      - 6379:6379
-    volumes:
-      - redis:/data
-      - ./redis.conf:/usr/local/etc/redis/redis.conf
-      - ./users.acl:/usr/local/etc/redis/users.acl
-    command: ["redis-server", "/usr/local/etc/redis/redis.conf" ]
-    networks:
-      - nest-chat-network
+  # redis:
+  #   image: redis:7.0-alpine
+  #   ports:
+  #     - 6379:6379
+  #   volumes:
+  #     - redis:/data
+  #     - ./redis.conf:/usr/local/etc/redis/redis.conf
+  #     - ./users.acl:/usr/local/etc/redis/users.acl
+  #   command: ["redis-server", "/usr/local/etc/redis/redis.conf" ]
+  #   networks:
+  #     - nest-chat-network
 
   # MariaDB container 
-  maria:
-    image: mariadb
+  # maria:
+  #   image: mariadb
+  #   ports:
+  #     - 3306:3306
+  #   env_file:
+  #     - mariadb.env
+  #   networks:
+  #     - nest-chat-network
+  
+  # MQTT container
+  mosquitto:
+    image: eclipse-mosquitto:2.0.14-openssl
     ports:
-      - 3306:3306
-    env_file:
-      - mariadb.env
-    networks:
-      - nest-chat-network
+      - 1883:1883
+      - 9001:9001
+    volumes:
+      - ./mosquitto:/mosquitto
 
-volumes:
-  redis:
-    driver: local
+# volumes:
+  # redis:
+  #   driver: local
 
 networks:
     nest-chat-network:
