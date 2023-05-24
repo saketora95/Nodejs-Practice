@@ -20,6 +20,9 @@ import { FruitPrice } from './maria-api/maria-api.entity';
 import { SocketGateway } from './socket/socket.gateway';
 import { SocketModule } from './socket/socket.module';
 
+// Socket.io Chat Room
+import { MessageModule } from './message-event/message.module';
+
 @Module({
   imports: [
     VideoInfoModule,
@@ -48,8 +51,11 @@ import { SocketModule } from './socket/socket.module';
     // }),
     // MariaApiModule,
 
-    // WebSocket
-    SocketModule,
+    // Socket
+    // SocketModule,
+
+    // Socket.io Chat Room
+    MessageModule,
   ],
   controllers: [AppController, HelloworldController],
   providers: [AppService],
