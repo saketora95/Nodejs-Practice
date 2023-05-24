@@ -12,8 +12,8 @@ services:
     depends_on:
       - redis
       - maria
-    networks:
-      - nest-chat-network
+    # networks:
+    #   - nest-chat-network
   
   # Redis container 
   redis:
@@ -25,8 +25,8 @@ services:
       - ./redis.conf:/usr/local/etc/redis/redis.conf
       - ./users.acl:/usr/local/etc/redis/users.acl
     command: ["redis-server", "/usr/local/etc/redis/redis.conf" ]
-    networks:
-      - nest-chat-network
+    # networks:
+    #   - nest-chat-network
 
   # MariaDB container 
   maria:
@@ -35,13 +35,13 @@ services:
       - 3306:3306
     env_file:
       - mariadb.env
-    networks:
-      - nest-chat-network
+    # networks:
+    #   - nest-chat-network
 
 volumes:
   redis:
     driver: local
 
-networks:
-    nest-chat-network:
-        driver: bridge
+# networks:
+#     nest-chat-network:
+#         driver: bridge
