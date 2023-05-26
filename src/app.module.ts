@@ -23,41 +23,48 @@ import { SocketModule } from './socket/socket.module';
 // Socket.io Chat Room
 import { MessageModule } from './message-event/message.module';
 
+// MQTT
+import { MQTTModule } from './mqtt/mqtt.module';
+import { MQTTService } from './mqtt/mqtt.service';
+
 @Module({
   imports: [
     VideoInfoModule,
 
     // Redis
-    // CacheModule.register({
-    //   isGlobal: true,
-    //   store: redisStore,
-    //   host: "redis",
-    //   port: "6379",
-    //   user: "tora",
-    //   password: "1234",
-    // }),
-    // RedisApiModule,
+    CacheModule.register({
+      isGlobal: true,
+      store: redisStore,
+      host: "redis",
+      port: "6379",
+      user: "tora",
+      password: "1234",
+    }),
+    RedisApiModule,
 
     // MariaDB & TypeORM
-    // TypeOrmModule.forRoot({
-    //   type: 'mariadb',
-    //   host: 'host.docker.internal',
-    //   port: 3306,
-    //   username: 'root',
-    //   password: '1234',
-    //   database: 'mysql',
-    //   entities: [FruitPrice],
-    //   synchronize: true,
-    // }),
-    // MariaApiModule,
+    TypeOrmModule.forRoot({
+      type: 'mariadb',
+      host: 'host.docker.internal',
+      port: 3306,
+      username: 'root',
+      password: '1234',
+      database: 'mysql',
+      entities: [FruitPrice],
+      synchronize: true,
+    }),
+    MariaApiModule,
 
     // Socket
-    // SocketModule,
+    SocketModule,
 
     // Socket.io Chat Room
     MessageModule,
+
+    // MQTT
+    MQTTModule,
   ],
   controllers: [AppController, HelloworldController],
-  providers: [AppService],
+  providers: [AppService, MQTTService],
 })
 export class AppModule {}

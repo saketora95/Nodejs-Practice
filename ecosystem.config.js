@@ -1,12 +1,19 @@
 module.exports = {
     apps : [
       {
-        name   : "Topic 8",
+        name   : "Topic 10",
         script : "./dist/main.js",
         instances : 4,
         exec_mode : "cluster",
         env: {
           "PORT": 4000,
+          
+          "MQTT_URL": "mosquitto",
+          "MQTT_PORT": 1883,
+          "MQTT_USERNAME": "tora",
+          "MQTT_PASSWORD": "1234",
+          "MQTT_TOPIC": "msgTest",
+          
 
         }
       },

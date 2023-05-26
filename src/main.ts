@@ -7,8 +7,19 @@ import { RedisIoAdapter } from './adapters/redis.adapter';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 
+// MQTT
+import { Transport } from '@nestjs/microservices';
+
 async function bootstrap() {
     const app = await NestFactory.create<NestExpressApplication>(AppModule);
+    app.connectMicroservice({
+      transport: Transport.MQTT,
+      options: {
+        url: `mqtt://${process.env.MQTT_URL}:${process.env.MQTT_PORT}`,
+        username: process.env.MQTT_USERNAME,
+        password: process.env.MQTT_PASSWORD,
+      },
+    })
     
     // Adapter
     const redisIoAdapter = new RedisIoAdapter(app);
@@ -21,6 +32,7 @@ async function bootstrap() {
     // 設置 swagger
     setupSwagger(app);
 
+    await app.startAllMicroservices();
     await app.listen(process.env.PORT);
 }
 

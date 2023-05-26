@@ -12,8 +12,11 @@ services:
     depends_on:
       - redis
       - maria
+      - mosquitto
     networks:
-      - nest-chat-network
+      - nest-network
+    environment:
+      - TZ=Asia/Taipei
   
   # Redis container 
   redis:
@@ -26,7 +29,7 @@ services:
       - ./users.acl:/usr/local/etc/redis/users.acl
     command: ["redis-server", "/usr/local/etc/redis/redis.conf" ]
     networks:
-      - nest-chat-network
+      - nest-network
 
   # MariaDB container 
   maria:
@@ -36,7 +39,7 @@ services:
     env_file:
       - mariadb.env
     networks:
-      - nest-chat-network
+      - nest-network
   
   # MQTT container
   mosquitto:
@@ -46,11 +49,13 @@ services:
       - 9001:9001
     volumes:
       - ./mosquitto:/mosquitto
+    networks:
+      - nest-network
 
 volumes:
   redis:
     driver: local
 
 networks:
-    nest-chat-network:
+    nest-network:
         driver: bridge
