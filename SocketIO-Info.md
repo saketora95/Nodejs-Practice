@@ -4,7 +4,7 @@
 # 正文
 ## 基礎連線
 - URL (localhost) : `http://localhost/chat`
-- URL (ugrok) : `https://[ngrok_url]/chat`
+- URL (ngrok) : `https://[ngrok_url]/chat`
 - Param : `{transports: ['websocket']}`
 
 ## Event 說明
