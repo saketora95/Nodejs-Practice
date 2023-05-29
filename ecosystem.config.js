@@ -14,7 +14,6 @@ module.exports = {
           "MQTT_PASSWORD": "1234",
           "MQTT_TOPIC": "msgTest",
           
-
         }
       },
       // {

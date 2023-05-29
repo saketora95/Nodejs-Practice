@@ -90,7 +90,7 @@ const app = new Vue({
 
     created() {
         this.activeRoom = this.selected;
-        this.socket = io('http://localhost/chat', {transports: ['websocket']});
+        this.socket = io('https://2c94-1-172-74-49.ngrok-free.app/chat', {transports: ['websocket']});
 
         this.socket.on('msgToClient', (message) => {
             console.log(message);

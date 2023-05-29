@@ -51,7 +51,7 @@ import { MQTTService } from './mqtt/mqtt.service';
       password: '1234',
       database: 'mysql',
       entities: [FruitPrice],
-      synchronize: true,
+      synchronize: false,
     }),
     MariaApiModule,
 
