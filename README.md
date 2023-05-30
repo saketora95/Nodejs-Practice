@@ -135,6 +135,14 @@ this.socket.on('emitTemp', (env_data) => {
 
 ![取得資料並顯示](Image/01.png)
 
+## 合併 `作業 - 8`
+1. 修改 `src\message-event` 資料夾下檔案，將原先與 MQTT Broker Server 連線與發送 Socket.IO 的功能併入原先的聊天室功能中
+2. 修改 `src\message-event\message.gateway.ts`，使加入與離開 room 的機制更符合要求
+    - 原版本：加入 roomA 時，只有 roomA 的 client，會收到待在 roomA 的 clients 數量。
+    - 新版本：不論加入哪個 room 時，所有的 client 都可以收到所有 room 的 clients 數量。
+3. 修改 `resource\main.js`，配合前述變更，將濕度、溫度以及所有 room 的 clients 數量顯示出來
+    ![成功顯示相關資訊](Image/02.png)
+
 # 參考資料
 1. [MQTT - Microservices | NestJS - A progressive Node.js framework](https://docs.nestjs.com/microservices/mqtt)
 2. [mqttjs/MQTT.js: The MQTT client for Node.js and the browser](https://github.com/mqttjs/MQTT.js/#mqttclientstreambuilder-options)
