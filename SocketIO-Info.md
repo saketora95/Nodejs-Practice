@@ -47,7 +47,7 @@
         ```
 
 ### `joinRoom` event
-使用者決定加入某一個 `room` 時使用；Server 收到後會回應 `joinedRoom` 和 `roomMsg` event。
+使用者決定加入某一個 `room` 時使用；Server 收到後會回應 `joinedRoom`、`roomNotiMsg` 和 `updateClientCnt` event。
 
 - 注意事項
     - 在使用者決定名稱前，不可使用。
@@ -60,7 +60,7 @@
     ```
     {
         "name": "Tora", 
-        "room": "test_room"
+        "room": "general"
     }
     ```
 
@@ -71,29 +71,47 @@
         - 使用者加入的 `room`。
     - 範例回應 : 
         ```
-        test_room
+        general
         ```
 
 - Server 回應 - 2
-    - Event 名稱 : `roomMsg`
+    - Event 名稱 : `roomNotiMsg`
     - 對象 : 所處 `room` 與 `joinRoom` event 中的 `room` 相同的 clients
     - 回應內容 : 
-        - `name` : 加入 `room` 的使用者的自訂名稱。
-        - `room` : 加入的 `room` 名稱。
-        - `text` : 使用者加入 `room` 的提示訊息。
-        - `count` : 加入的 `room` 目前的 clients 數量。`1` 表示包含自己在內，共有 `1` 個 client 待在此 `room`。
+        - `action` : 加入 room 時為 `join`，離開 room 時為 `leave`。
+        - `name` : 加入或離開的 client 的自訂名稱。
+        - `room` : 加入或離開的 `room` 名稱。
     - 範例回應 : 
         ```
         {
+            "action": "join",
             "name": "Tora", 
-            "room": "test_room",
-            "text": "加入了 [ test_room ] 聊天室"
-            "count": 1
+            "room": "general"
+        }
+        ```
+
+- Server 回應 - 3
+    - Event 名稱 : `updateClientCnt`
+    - 對象 : 所有的 clients
+    - 回應內容 : 
+        - `general` : 待在 `general` room 的 clients 數量。
+        - `roomA` : 待在 `roomA` room 的 clients 數量。
+        - `roomB` : 待在 `roomB` room 的 clients 數量。
+        - `roomC` : 待在 `roomC` room 的 clients 數量。
+        - `roomD` : 待在 `roomD` room 的 clients 數量。
+    - 範例回應 : 
+        ```
+        {
+            "general": 1,
+            "roomA": 0,
+            "roomB": 0,
+            "roomC": 0,
+            "roomD": 0
         }
         ```
 
 ### `leaveRoom` event
-使用者決定離開某一個 `room` 時使用；Server 收到後會回應 `leftRoom` 和 `roomMsg` event。
+使用者決定離開某一個 `room` 時使用；Server 收到後會回應 `roomNotiMsg`、`lefeRoom` 和 `updateClientCnt` event。
 
 - 注意事項
     - 在使用者決定名稱前，不可使用。
@@ -106,35 +124,53 @@
     ```
     {
         "name": "Tora", 
-        "room": "test_room"
+        "room": "general"
     }
     ```
 
 - Server 回應 - 1
+    - Event 名稱 : `roomNotiMsg`
+    - 對象 : 所處 `room` 與 `joinRoom` event 中的 `room` 相同的 clients
+    - 回應內容 : 
+        - `action` : 加入 room 時為 `join`，離開 room 時為 `leave`。
+        - `name` : 加入或離開的 client 的自訂名稱。
+        - `room` : 加入或離開的 `room` 名稱。
+    - 範例回應 : 
+        ```
+        {
+            "action": "leave",
+            "name": "Tora", 
+            "room": "general"
+        }
+        ```
+
+- Server 回應 - 2
     - Event 名稱 : `leftRoom`
     - 對象 : 發送 `leftRoom` event 的 client
     - 回應內容 : 
         - 使用者離開的 `room`。
     - 範例回應 : 
         ```
-        test_room
+        general
         ```
 
-- Server 回應 - 2
-    - Event 名稱 : `roomMsg`
-    - 對象 : 所處 `room` 與 `leaveRoom` event 中的 `room` 相同的 clients
+- Server 回應 - 3
+    - Event 名稱 : `updateClientCnt`
+    - 對象 : 所有的 clients
     - 回應內容 : 
-        - `name` : 離開 `room` 的使用者的自訂名稱。
-        - `room` : 離開的 `room` 名稱。
-        - `text` : 使用者離開 `room` 的提示訊息。
-        - `count` : 離開的 `room` 目前的 clients 數量。`1` 表示不包含自己在內，共有 `1` 個 client 待在此 `room`。
+        - `general` : 待在 `general` room 的 clients 數量。
+        - `roomA` : 待在 `roomA` room 的 clients 數量。
+        - `roomB` : 待在 `roomB` room 的 clients 數量。
+        - `roomC` : 待在 `roomC` room 的 clients 數量。
+        - `roomD` : 待在 `roomD` room 的 clients 數量。
     - 範例回應 : 
         ```
         {
-            "name": "Tora", 
-            "room": "test_room",
-            "text": "離開了 [ test_room ] 聊天室"
-            "count": 1
+            "general": 1,
+            "roomA": 0,
+            "roomB": 0,
+            "roomC": 0,
+            "roomD": 0
         }
         ```
 
@@ -177,4 +213,4 @@
 
 # 編輯記錄
 1. 2023-05-25 : 建立檔案並編寫，完成初版本。
-2. 2023-05-30 : 修正錯字。
+2. 2023-05-30 : 修正錯字，並配合改版調整內文。
