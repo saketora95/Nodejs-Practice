@@ -23,7 +23,22 @@ const app = new Vue({
             "roomD"
         ],
         isDisabled: true,
-        clientCount: 0
+        clientCount: 0,
+        roomClients: {
+            general: 0,
+            roomA: 0,
+            roomB: 0,
+            roomC: 0,
+            roomD: 0,
+        },
+        humidity: {
+            value: 'Not update yet',
+            timestamp: 'Not update yet'
+        },
+        temperature: {
+            value: 'Not update yet',
+            timestamp: 'Not update yet'
+        },
     },
     methods: {
 
@@ -91,22 +106,18 @@ const app = new Vue({
     created() {
         this.activeRoom = this.selected;
         this.socket = io('http://localhost/chat', {transports: ['websocket']});
+    
+        this.socket.on('connect', () => {
+            console.log('connect');
+            this.check();
+        });
 
         this.socket.on('msgToClient', (message) => {
             console.log(message);
             this.receivedMessage(message);
         });
 
-        this.socket.on('roomMsg', (message) => {
-            console.log(message);
-            this.receivedMessage(message);
-            this.clientCount = message.count;
-        });
-    
-        this.socket.on('connect', () => {
-            console.log('connect');
-            this.check();
-        });
+        // Room Process
     
         this.socket.on('joinedRoom', (room) => {
             console.log(room);
@@ -116,6 +127,33 @@ const app = new Vue({
         this.socket.on('leftRoom', (room) => {
             console.log(room);
             this.rooms[room] = false;
+        });
+
+        this.socket.on('roomNotiMsg', (message) => {
+            console.log(message);
+            this.receivedMessage({
+                name: message.name,
+                text: '使用者 [ ' + message.name + ' ] ' + ((message.action == 'join') ? '加入' : '離開') + '了 [ ' + message.room + ' ] 聊天室。'
+            });
+        });
+
+        this.socket.on('updateClientCnt', (message) => {
+            console.log(message);
+            this.roomClients = message;
+        });
+
+        // Temp & Humi Process
+
+        this.socket.on('emitHumi', (env_data) => {
+            console.log(env_data);
+            this.humidity.value = env_data.value;
+            this.humidity.timestamp = env_data.timestamp;
+        });
+
+        this.socket.on('emitTemp', (env_data) => {
+            console.log(env_data);
+            this.temperature.value = env_data.value;
+            this.temperature.timestamp = env_data.timestamp;
         });
     }
 });

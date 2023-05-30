@@ -13,8 +13,6 @@ module.exports = {
           "MQTT_USERNAME": "tora",
           "MQTT_PASSWORD": "1234",
           "MQTT_TOPIC": "msgTest",
-          
-
         }
       },
       // {

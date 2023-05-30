@@ -7,6 +7,10 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 
+// MQTT
+import { Payload } from '@nestjs/microservices';
+import * as moment from 'moment';
+
 @WebSocketGateway({
     namespace: '/chat',
     cors: {
@@ -21,6 +25,25 @@ export class MessageGateway implements OnGatewayConnection, OnGatewayDisconnect 
     
     @WebSocketServer() server: Server;
 
+    // MQTT Broker Event
+
+    public emitData(@Payload() payload: number[]) {
+
+        let event_topic = 'emit';
+        if (payload['params']['stream'] == 'temperature') {
+            event_topic += 'Temp';
+        } else if (payload['params']['stream'] == 'humidity') {
+            event_topic += 'Humi';
+        }
+        
+        this.server.emit(event_topic, {
+            value: payload['params']['data'],
+            timestamp: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
+        });
+    }
+
+    // SocketIO Event
+
     @SubscribeMessage('msgToServer')
     public handleMessage(client: Socket, payload: any): void {
         console.log(`Instance ${process.env.pm_id}\'s Client ${client.id} Emit [ msgToServer ]`)
@@ -32,23 +55,51 @@ export class MessageGateway implements OnGatewayConnection, OnGatewayDisconnect 
     @SubscribeMessage('joinRoom')
     public async joinRoom(client: Socket, payload: any): Promise<void> {
         console.log(`Instance ${process.env.pm_id}\'s Client ${client.id} Emit [ joinRoom ] : ${payload.room}`)
+
+        // Personal Message
         client.join(payload.room);
         client.emit('joinedRoom', payload.room);
 
-        payload.text = `加入了 [ ${payload.room} ] 聊天室`;
-        payload.count = (await this.server.in(payload.room).fetchSockets()).length;
-        this.server.to(payload.room).emit('roomMsg', payload);
+        // Room Notional Message
+        this.server.to(payload.room).emit('roomNotiMsg', {
+            action: 'join',
+            name: payload.name,
+            room: payload.room
+        });
+
+        // Global Notional Message
+        this.server.emit('updateClientCnt', {
+            general: (await this.server.in('general').fetchSockets()).length,
+            roomA: (await this.server.in('roomA').fetchSockets()).length,
+            roomB: (await this.server.in('roomB').fetchSockets()).length,
+            roomC: (await this.server.in('roomC').fetchSockets()).length,
+            roomD: (await this.server.in('roomD').fetchSockets()).length,
+        });
     }
 
     @SubscribeMessage('leaveRoom')
     public async leaveRoom(client: Socket, payload: any): Promise<void> {
         console.log(`Instance ${process.env.pm_id}\'s Client ${client.id} Emit [ leaveRoom ] : ${payload.room}`)
+
+        // Room Notional Message
+        this.server.to(payload.room).emit('roomNotiMsg', {
+            action: 'leave',
+            name: payload.name,
+            room: payload.room
+        });
+
+        // Personal Message
         client.leave(payload.room);
         client.emit('leftRoom', payload.room);
-        
-        payload.text = `離開了 [ ${payload.room} ] 聊天室`;
-        payload.count = (await this.server.in(payload.room).fetchSockets()).length;
-        this.server.to(payload.room).emit('roomMsg', payload);
+
+        // Global Notional Message
+        this.server.emit('updateClientCnt', {
+            general: (await this.server.in('general').fetchSockets()).length,
+            roomA: (await this.server.in('roomA').fetchSockets()).length,
+            roomB: (await this.server.in('roomB').fetchSockets()).length,
+            roomC: (await this.server.in('roomC').fetchSockets()).length,
+            roomD: (await this.server.in('roomD').fetchSockets()).length,
+        });
     }
 
     public handleDisconnect(client: Socket): void {

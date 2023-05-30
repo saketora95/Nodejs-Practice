@@ -17,6 +17,11 @@
                 <div class="col-md-6 offset-md-3 col-sm-12">
                     <h1 class="text-center">{{ title }}</h1>
                     <br>
+                    <p>濕度 (Humidity) : {{ humidity.value }} （更新於 {{ humidity.timestamp }}）</p>
+                    <p>溫度 (Temperature) : {{ temperature.value }} （更新於 {{ temperature.timestamp }}）</p>
+                    <ul>
+                        <li v-for="(value, key) in roomClients">{{ key }} 的 clients 數量: {{ value }}</li>
+                    </ul>
                     <div id="status"></div>
                     <div id="chat">
                         <label for="username">Your Name:</label>
@@ -39,7 +44,7 @@
                         <label for="textarea">Message:</label>
                         <textarea id="textarea" class="form-control" v-model="text" placeholder="Enter message..."></textarea>
                         <br>
-                        <button id="send" class="btn" @click.prevent="sendMessage" :disabled='isDisabled'>Send</button> <label>目前聊天室人數: {{ clientCount }}</label>
+                        <button id="send" class="btn" @click.prevent="sendMessage" :disabled='isDisabled'>Send</button>
                     </div>
                 </div>
             </div>

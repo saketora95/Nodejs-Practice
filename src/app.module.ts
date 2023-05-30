@@ -26,6 +26,7 @@ import { MessageModule } from './message-event/message.module';
 // MQTT
 import { MQTTModule } from './mqtt/mqtt.module';
 import { MQTTService } from './mqtt/mqtt.service';
+import { MessageService } from './message-event/message.service';
 
 @Module({
   imports: [
@@ -62,9 +63,12 @@ import { MQTTService } from './mqtt/mqtt.service';
     MessageModule,
 
     // MQTT
-    MQTTModule,
+    // MQTTModule,
   ],
   controllers: [AppController, HelloworldController],
-  providers: [AppService, MQTTService],
+  providers: [AppService,
+    // MQTTService, 
+    MessageService
+  ],
 })
 export class AppModule {}
