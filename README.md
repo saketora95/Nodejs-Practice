@@ -23,7 +23,7 @@
     - 0 : 0 - 20 mA
     - 1 : 4 - 20 mA
     - 2 : 0 - 24 mA
-2. 於 Gateway 後臺的 Communication 中，修改 Channel 的設定，使其接收電流訊號（`Measure Mode: Current`）
+2. 於 Gateway 後臺的 Communication/Interfaces 中，修改 Channel 的設定，使其接收電流訊號（`Measure Mode: Current`）
 3. 調整 `EZR5231` 內部的跳針設置，電流模式應改為 2 與 3
 
 #### 接收電壓訊號
@@ -31,12 +31,20 @@
     - 連接電表測試電流時，以並連連接。
     - 不連接電表時，分開接上 `EZR5231 AI1+` 與 `SG-002 AVo`，以及 `EZR5231 AI1-` 與 `SG-002 GND`；於附圖中使用 WAGO 的情形時，撤掉電表的探針即可。
 ![與設備串連連接](Image/03.png)
-2. 於 Gateway 後臺的 Communication 中，修改 Channel 的設定，使其接收電壓訊號（`Measure Mode: Voltage`）
+2. 於 Gateway 後臺的 Communication/Interfaces 中，修改 Channel 的設定，使其接收電壓訊號（`Measure Mode: Voltage`）
 3. 調整 `EZR5231` 內部的跳針設置，電壓模式應改為 1 與 2
 
-## 與 broker 連線
-於前段已經完成設備的線路連接，進入 `SUNIX EZG1300 Gateway` 後臺的 `Communication` 標籤中，設置伺服器相關資料即可。
+## 連接 MQTT Broker Server
+### 與 Broker 連線
+於前段已經完成設備的線路連接，進入 Gateway 後臺的 Communication/Service 標籤中，設置伺服器相關資料即可。
 ![已與 broker 達成連線](Image/04.png)
+
+### 透過 MQTTX 接收 Device Port 訊號
+1. 於 Gateway 後臺的 Communication/Interfaces 中，修改 Channel 的設定，透過 `Data Update Time` 調整發送資料的頻率
+2. 於 Gateway 後臺的 Communication/Topics 中，取得 Channel 的 Topic
+3. 參照「[與 Broker 連線](#與-broker-連線)」一段中設置的伺服器資料，使用 MQTTX 與伺服器建立連線
+4. 訂閱步驟 2 取得的 Topic 並確認接收資料
+![MQTTX 確實接收到資料](Image/05.png)
 
 # 參考資料
 1. [三泰科技 - 雲服務轉譯器Gateway](https://www.sunix.com/tw/product_detail.php?cid=2&kid=4&gid=25&pid=2110)
@@ -49,3 +57,5 @@
     - 開始進行 Topic. 11
 2. 2023-05-29
     - 持續進行 Topic. 11
+2. 2023-05-30
+    - 整理 `README.md` 檔案並完成 Topic. 11
