@@ -26,7 +26,7 @@
     ```
     {
         "name": "Tora", 
-        "room": "test_room", 
+        "room": "general", 
         "text": "Hello"
     }
     ```
@@ -42,7 +42,7 @@
         ```
         {
             "name": "Tora", 
-            "room": "test_room", 
+            "room": "general", 
             "text": "Hello"
         }
         ```
@@ -131,7 +131,7 @@
 
 - Server 回應 - 1
     - Event 名稱 : `roomNotiMsg`
-    - 對象 : 所處 `room` 與 `joinRoom` event 中的 `room` 相同的 clients
+    - 對象 : 所處 `room` 與 `leaveRoom` event 中的 `room` 相同的 clients
     - 回應內容 : 
         - `action` : 加入 room 時為 `join`，離開 room 時為 `leave`。
         - `name` : 加入或離開的 client 的自訂名稱。
@@ -147,7 +147,7 @@
 
 - Server 回應 - 2
     - Event 名稱 : `leftRoom`
-    - 對象 : 發送 `leftRoom` event 的 client
+    - 對象 : 發送 `leaveRoom` event 的 client
     - 回應內容 : 
         - 使用者離開的 `room`。
     - 範例回應 : 
