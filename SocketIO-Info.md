@@ -1,5 +1,6 @@
 # 概述
-此為 `作業 - 8.1` 為前後端協作，所撰寫的 `Socket.IO` 簡要文件。
+此為 `作業 - 8.1` 與 `作業 - 10` 前後端協作所使用，所撰寫的 `Socket.IO` 簡要文件；目前主要依據 `作業 - 10` 撰寫，若要檢視程式碼，請參照該 branch：
+- https://github.com/saketora95/Nodejs-Practice/tree/Topic-10
 
 # 正文
 ## 基礎連線
