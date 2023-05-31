@@ -44,17 +44,17 @@ import { MessageService } from './message-event/message.service';
     RedisApiModule,
 
     // MariaDB & TypeORM
-    TypeOrmModule.forRoot({
-      type: 'mariadb',
-      host: 'host.docker.internal',
-      port: 3306,
-      username: 'root',
-      password: '1234',
-      database: 'mysql',
-      entities: [FruitPrice],
-      synchronize: true,
-    }),
-    MariaApiModule,
+    // TypeOrmModule.forRoot({
+    //   type: 'mariadb',
+    //   host: 'host.docker.internal',
+    //   port: 3306,
+    //   username: 'root',
+    //   password: '1234',
+    //   database: 'mysql',
+    //   entities: [FruitPrice],
+    //   synchronize: true,
+    // }),
+    // MariaApiModule,
 
     // Socket
     SocketModule,
@@ -66,9 +66,8 @@ import { MessageService } from './message-event/message.service';
     // MQTTModule,
   ],
   controllers: [AppController, HelloworldController],
-  providers: [AppService,
-    // MQTTService, 
-    MessageService
+  providers: [
+    AppService
   ],
 })
 export class AppModule {}

@@ -1,163 +1,101 @@
 # Nodejs-Practice
 這是個人學習與練習 Node.js 所使用的 Repo。
 
-# 課題 Topic. 10
-1. 在開發環境下，接收指定 `MQTT broker server` 的資料
-2. `MQTT broker server` 會每 10 秒發送一次資料，同樣以每 10 秒的頻率發送一次資料給前端
-3. 使前端顯示上述資料
+# 課題 Topic. 12
+1. 接收 SUNIX AI Device Port 的數據
+2. 連接 SUNIX DI/O Device Port 與指示燈
+3. 依據接收到的 SUNIX AI Device Port 數據，透過 SUNIX DI/O Device Port 設置指示燈的狀態。
+    - 數據 `0.0 ~  4.0` 時，指示燈點亮 `黃色燈光`；
+    - 數據 `4.1 ~  6.0` 時，指示燈點亮 `綠色燈光`；
+    - 數據 `6.1 ~ 10.0` 時，指示燈點亮 `紅色燈光`，並且當數據達 `9.0` 以上時，會另有蜂鳴器響起。
 
 # 練習記錄
-## 建置連線
-### 環境設定
-修改 `ecosystem.config.js` 檔案，在 `app` 中的 `env` 填入連向 `MQTT broker server` 的資料：
+## 設備連接
+依照指示，繪製簡圖與連接設備：
+![設備連接簡圖](Image/01.png)
+
+## 連接 MQTT Broker Server
+### 基礎連線
+修改 `ecosystem.config.js`，於 `env` 中設置 MQTT Broker Server 的連線資訊。
+
+### 接收與發送數據
+1. 修改 `src\message-event\message.service.ts` 檔案，設置點亮指示燈與開啟蜂鳴器的函數
+    - 於 `constructor` 中，注入先前設置的 `MQTT_CLIENT`。
+    ```
+    constructor(
+        @Inject('MQTT_CLIENT') private mqttClient: ClientProxy
+    ) {}
+    ```
+    - 設置 `setLight` 函數，依據傳入的數值，產生一個 boolean array，並將此 array 轉給 `publishLightSetting` 函數進行發佈。
+        - 數據為 `0.0 ~  4.0` 時，點亮黃光（紅線與綠線，即 DO1 與 DO3）；
+        - 數據為 `4.1 ~  6.0` 時，點亮綠光（綠線，即 DO3）；
+        - 數據為 `6.1 ~  10.0` 時，點亮紅光（紅線，即 DO1）；
+        - 數據為 `9.0` 以上時，點亮紅光並響起蜂鳴（紅線與紫線，即 DO1 與 DO4）。
+        - 範例：數據為 `9.5` 時，會產生 `[true, false, false, true]`。
+    - 設置 `publishLightSetting` 函數，依據傳入的 boolean array，發佈訊息到指定的 Topic。
+    ```
+    this.mqttClient.emit(
+        tatgetTopic, 
+        {
+            params: {
+                stream: "DO",
+                type: "bool",
+                data: signal[i]
+            }
+        }
+    );
+    ```
+2. 修改 `src\message-event\message.controller.ts` 檔案，訂閱來源數據的 Topic，並將數據轉給前述的 `setLight` 函數
+```
+import { MessageService } from './message.service';
+...
+constructor(
+    private readonly msgGateway: MessageGateway,
+    private readonly sunixService: MessageService
+) {}
+
+@MessagePattern('SUNIX/26:00:01_EZG1300/97:00:fb_EZR5231/GET/AI_INTERFACE/CH_01')
+receiveData_EZG1300_AI_01(@Payload() payload: number[], @Ctx() context: MqttContext) {
+    this.sunixService.setLight(payload);
+}
+```
+3. 新建 `src\message-event\mqtt.serializer.ts` 檔案：
+```
+import { Serializer, OutgoingResponse } from '@nestjs/microservices';
+
+export class OutboundResponseSerializer implements Serializer {
+    serialize(value: any): OutgoingResponse {
+        return value.data;
+    }
+}
+```
+4. 修改 `src\message-event\message.module.ts` 檔案，於 `MQTT_CLIENT` 的 `options` 中追加 `serializer: new OutboundResponseSerializer()`
+
+#### 使用 serializer 的原因
+若無設置 `serializer`，在發佈訊息的 `this.mqttClient.emit` 函數會傳出以下訊息：
 ```
 {
-    ...,
-    env: {
-        ...,
-        "MQTT_URL": "mosquitto",
-        "MQTT_PORT": 1883,
-        "MQTT_USERNAME": "tora",
-        "MQTT_PASSWORD": "1234",
-        "MQTT_TOPIC": "msgTest",
-    }
-},
-```
-
-### 建置連線
-1. 修改 `src\main.ts` 檔案，使用 `connectMicroservice` 與 `startAllMicroservices` 建立 `microservice`
-```
-app.connectMicroservice({
-    transport: Transport.MQTT,
-    options: {
-        url: `mqtt://${process.env.MQTT_URL}:${process.env.MQTT_PORT}`,
-        username: process.env.MQTT_USERNAME,
-        password: process.env.MQTT_PASSWORD,
-    },
-})
-
-...
-
-await app.startAllMicroservices();
-```
-2. 修改 `src\app.module.ts` 檔案，使用 `ClientsModule.register` 註冊 client
-```
-ClientsModule.register([{
-    name: 'MQTT_CLIENT',
-    options: {
-        url: `mqtt://${process.env.MQTT_URL}:${process.env.MQTT_PORT}`,
-        username: process.env.MQTT_USERNAME,
-        password: process.env.MQTT_PASSWORD,
-    },
-}]),
-```
-3. 修改 `src\app.controller.ts` 檔案，使用 `@MessagePattern()` 訂閱目標的 topic
-```
-@MessagePattern(process.env.MQTT_TOPIC)
-receiveData(@Payload() payload: number[], @Ctx() context: MqttContext) {
-    console.log(context.getTopic());
-    console.log(payload);
-    console.log(context.getPacket());
+    pattern: 'SUNIX/26:00:01_EZG1300/9a:00:c5_EZR5002/SET/DO_INTERFACE/CH_01',
+    data: { params: { stream: 'DO', type: 'bool', data: false } }
 }
 ```
+發佈的訊息會由 `pattern` 與 `data` 構成，但這樣的結構不被設備接受，因此要調整成單有 `{ params: { stream: 'DO', type: 'bool', data: false }` 一段；經由 `src\message-event\mqtt.serializer.ts` 檔案的設置，`return value.data` 僅回傳了期望發佈的部分，藉此配合設備需求的結構。
 
-至此，於終端機中執行 `docker-compose up --build` 建置與啟動環境後，能確實收到來自 `MQTT broker server` 的資料
-
-## 結合 `Socket.IO`
-### 改變結構
-1. 將 `src\app.module.ts` 與 `src\app.controller.ts` 檔案的 `MQTT broker server` 連線設置搬移至 `src\mqtt\mqtt.module.ts` 與 `src\mqtt\mqtt.controller.ts` 檔案
-2. 修改 `src\mqtt\mqtt.controller.ts` 檔案的 `receiveData` 函數，使其接收到資料時將資料轉往 `src\mqtt\mqtt.gateway.ts` 觸發
-```
-@MessagePattern(process.env.MQTT_TOPIC)
-receiveData(@Payload() payload: number[], @Ctx() context: MqttContext) {
-    this.mqttGateway.emitData(payload);
-}
-```
-
-### 建置 `Socket.IO` 後端環境
-1. 仿照 `作業 - 8.1`，建立 `src\mqtt\mqtt.gateway.ts` 檔案，設置 `emitData` 函數處理接收資料時的事件
-```
-public emitData(@Payload() payload: number[]) {
-
-    let event_topic = 'emit';
-    if (payload['params']['stream'] == 'temperature') {
-        event_topic += 'Temp';
-    } else if (payload['params']['stream'] == 'humidity') {
-        event_topic += 'Humi';
-    }
-    
-    this.server.emit(event_topic, {
-        value: payload['params']['data'],
-        timestamp: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss')
-    });
-}
-```
-2. 修改 `docker-compose.yml` 檔案，設置 `NestJS` container 的時區
-```
-node:
-    ...
-    environment:
-        - TZ=Asia/Taipei
-```
-
-### 建置 `Socket.IO` 前端環境
-1. 仿照 `作業 - 8.1`，於 `resource\topic10` 中建立 `index.html` 與 `main.js` 等檔案
-2. 修改 `resource\topic10\index.html` 檔案，以顯示 `MQTT broker server` 的資料
-3. 修改 `resource\topic10\main.js` 檔案，以處理事件
-```
-humidity: {
-    value: 'Not update yet',
-    timestamp: 'Not update yet'
-},
-temperature: {
-    value: 'Not update yet',
-    timestamp: 'Not update yet'
-},
-
-...
-
-this.socket.on('emitHumi', (env_data) => {
-    console.log(env_data);
-    this.humidity.value = env_data.value;
-    this.humidity.timestamp = env_data.timestamp;
-});
-
-this.socket.on('emitTemp', (env_data) => {
-    console.log(env_data);
-    this.temperature.value = env_data.value;
-    this.temperature.timestamp = env_data.timestamp;
-});
-```
-
-## 測試運行
-1. 於終端機中執行 `docker-compose up --build` 建置與啟動環境
-2. 使用瀏覽器連至 `http://localhost/topic10/` 確認狀況
-
-![取得資料並顯示](Image/01.png)
-
-## 合併 `作業 - 8`
-1. 修改 `src\message-event` 資料夾下檔案，將原先與 MQTT Broker Server 連線與發送 Socket.IO 的功能併入原先的聊天室功能中
-2. 修改 `src\message-event\message.gateway.ts`，使加入與離開 room 的機制更符合要求
-    - 原版本：加入 roomA 時，只有 roomA 的 client，會收到待在 roomA 的 clients 數量。
-    - 新版本：不論加入哪個 room 時，所有的 client 都可以收到所有 room 的 clients 數量。
-3. 修改 `resource\main.js`，配合前述變更，將濕度、溫度以及所有 room 的 clients 數量顯示出來
-    ![成功顯示相關資訊](Image/02.png)
+## 實際測試
+透過訊號產生器產生電壓訊號，經由 SUNIX AI Device Port 接收並發佈至 MQTT Broker Server；之後經由 NestJS 訂閱指定 Topic，對接收到的數據進行邏輯處理，以發佈對應的訊息給 SUNIX DI/O Device Port。
+![指示燈如預期運作](Image/02.png)
 
 # 參考資料
-1. [MQTT - Microservices | NestJS - A progressive Node.js framework](https://docs.nestjs.com/microservices/mqtt)
-2. [mqttjs/MQTT.js: The MQTT client for Node.js and the browser](https://github.com/mqttjs/MQTT.js/#mqttclientstreambuilder-options)
-3. [Simplest way to implement MQTT in NestJs - DEV Community](https://dev.to/imshivanshpatel/simplest-way-to-implement-mqtt-in-nest-js-36l9)
-4. [docker - Local MQTT mosquitto instance getting connect ECONNREFUSED 127.0.0.1:1883 - Stack Overflow](https://stackoverflow.com/questions/63615089/local-mqtt-mosquitto-instance-getting-connect-econnrefused-127-0-0-11883)
-5. [Introducción a MQTT con NestJS - YouTube](https://www.youtube.com/watch?v=eptjyt3dEzM)
-6. [date - How to set format "dd/mm/yy" in NestJS without time - Stack Overflow](https://stackoverflow.com/questions/56015112/how-to-set-format-dd-mm-yy-in-nestjs-without-time)
-7. [Typescript module systems on momentJS behaving strangely - Stack Overflow](https://stackoverflow.com/questions/32987273/typescript-module-systems-on-momentjs-behaving-strangely)
-8. [Using docker-compose to set containers timezones - Stack Overflow](https://stackoverflow.com/questions/39172652/using-docker-compose-to-set-containers-timezones)
+1. [三泰科技 - 雲服務轉譯器Gateway](https://www.sunix.com/tw/product_detail.php?cid=2&kid=4&gid=25&pid=2110)
+2. [Draw.io (Diagrams.net)](https://app.diagrams.net/)
+3. [三泰科技 - 遠端I/O模組](https://www.sunix.com/tw/product_detail.php?cid=2&kid=4&gid=27&pid=2009)
+4. [三用電表如何表測直流電流？ (2021/6/18 修補版) @ Ray痞Blog~ :: 痞客邦 ::](https://promiserobert.pixnet.net/blog/post/228861560-%E4%B8%89%E7%94%A8%E9%9B%BB%E8%A1%A8%E5%A6%82%E4%BD%95%E8%A1%A8%E6%B8%AC%E7%9B%B4%E6%B5%81%E9%9B%BB%E6%B5%81%EF%BC%9F)
+5. [SUNIX - 遠端I/O模組](https://www.sunix.com/en/product_detail.php?cid=2&kid=4&gid=27&pid=2024)
+6. [RQ-85-明緯企業股份有限公司-交換式電源供應器製造商](http://www.meanwell.com.tw/productPdf.aspx?i=379)
+7. [typescript - Nestjs ClientMqtt.emit publish both pattern and data to broker rather than only data - Stack Overflow](https://stackoverflow.com/questions/67485078/nestjs-clientmqtt-emit-publish-both-pattern-and-data-to-broker-rather-than-only)
 
 # 編輯記錄
-1. 2023-05-25
-    - 開始進行 Topic. 10
-2. 2023-05-26
-    - 完成 Topic. 10
-3. 2023-05-30
-    - 調整結構，使溫度與濕度資訊併入聊天室之中。
-    - 調整前端加入或離開 room 時的處理，使資訊顯示更完整，並可取得所有 room 的 clients 數量。
+1. 2023-05-30
+    - 開始進行 Topic. 12
+2. 2023-05-31
+    - 完成 Topic. 12
