@@ -14,7 +14,7 @@
 
 # 練習記錄 [課題 1 - 3]
 ## 設備連接
-依照指示，繪製簡圖與連接設備：
+依照指示，連接 SUNIX DI/O Device Port 與指示燈：
 ![設備連接簡圖](Image/01.png)
 
 ## 連接 MQTT Broker Server
@@ -91,12 +91,26 @@ export class OutboundResponseSerializer implements Serializer {
 # 練習記錄 [課題 4 - 5]
 此段落為 2023-06-01 新增課題的記錄。
 
-## 設備連接
-依照指示，繪製簡圖與連接設備：
-![設備連接簡圖](Image/03.png)
+## Modbus RTU
+在溫控器中，設置為透過 `Modbus RTU` 進行通訊，其訊息組成為：
+```
+slaveId command offset(high) offset(low) length(high) length(low) CRC
+```
+除 `CRC` 外，參考溫控器的使用手冊構成訊息，而 `CRC` 可以透過 [參考資料 [10]](#參考資料) 的網站協助計算；依據使用手冊組成一段訊息，並得出其 `CRC` 如下，對此溫控器而言，是讀取 PV 目前溫度值的訊息：
+```
+01 03 10 00 00 02 C0 CB
+```
 
-slaveId command offset(high) offset(low) length(high) length(low) CRC 
-01 03 00 00 00 01
+## 溫控器測試
+1. 使用轉接器，將個人電腦與溫控器設備連接
+![直接與溫控器連接](Image/03.png)
+2. 透過 `Serial Port Utility`，對溫控器發送上述的讀取用 Modbus RTU 訊息：`01 03 10 00 00 02 C0 CB`
+3. 取得回傳：`01 03 04 00 F5 00 E6 6B 8B`
+    - `00F5` 為 10 進制的 `245`，而 `00E6` 為 10 進制的 `230`，符合溫控器本身顯示的數值。
+
+## 設備連接
+依照指示，連接 SUNIX RS-422/485 Device Port 與 DTB4848 溫控器
+![設備連接簡圖](Image/04.png)
 
 # 參考資料
 1. [三泰科技 - 雲服務轉譯器Gateway](https://www.sunix.com/tw/product_detail.php?cid=2&kid=4&gid=25&pid=2110)
@@ -108,6 +122,7 @@ slaveId command offset(high) offset(low) length(high) length(low) CRC
 7. [typescript - Nestjs ClientMqtt.emit publish both pattern and data to broker rather than only data - Stack Overflow](https://stackoverflow.com/questions/67485078/nestjs-clientmqtt-emit-publish-both-pattern-and-data-to-broker-rather-than-only)
 8. [三泰科技 - 遠端I/O模組](https://www.sunix.com/tw/product_detail.php?cid=2&kid=4&gid=27&pid=2040)
 9. [DTB 系列溫度控制器操作手冊](https://filecenter.deltaww.com/Products/download/06/060405/Manual/DELTA_IA-TC_DTB_I_TSET_20140421.pdf)
+10. [計算 Modbus RTU CRC16](https://cht.nahua.com.tw/software/crc16/index.php)
 
 # 編輯記錄
 1. 2023-05-30
@@ -116,4 +131,6 @@ slaveId command offset(high) offset(low) length(high) length(low) CRC
     - 完成 Topic. 12
 3. 2023-06-01
     - 新增課題目標 [4] 與 [5]
+    - 持續進行 Topic. 12
+4. 2023-06-02
     - 持續進行 Topic. 12
