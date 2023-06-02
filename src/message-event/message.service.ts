@@ -30,7 +30,7 @@ export class MessageService {
             lightSignal = [true, false, false, true];
         }
 
-        if (lightSignal) {
+        if (lightSignal.length != 0) {
             this.publishLightSetting(lightSignal);
         }
     }
