@@ -8,7 +8,7 @@ services:
     build:
       dockerfile: Dockerfile
     ports:
-      - 80:4000
+      - 4000:4000
     depends_on:
       - redis
       - maria
@@ -51,6 +51,19 @@ services:
       - ./mosquitto:/mosquitto
     networks:
       - nest-network
+
+  # Nginx container 
+  nginx:
+    image: nginx:mainline-alpine3.17-slim
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - nest-network
+    environment:
+      - TZ=Asia/Taipei
+  
 
 volumes:
   redis:
