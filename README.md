@@ -7,7 +7,7 @@
     - 需要包含 hosts file/ 本機 DNS 設定/ Top level domain/ name server/ dns a record
 
 # 練習記錄
-![DNS 運作流程](Image/Topic-13.png)
+![DNS 運作流程](Image/Topic-13_v2.png)
 
 # 參考資料
 1. [什麼是 DNS – DNS 簡介 – AWS](https://aws.amazon.com/tw/route53/what-is-dns/)
@@ -23,3 +23,5 @@
     - 更新參考資料
 3. 2023-06-02
     - 完成 Topic. 13
+4. 2023-06-05
+    - 更新流程圖
