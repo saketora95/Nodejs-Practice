@@ -9,7 +9,7 @@
     - 數據 `4.1 ~  6.0` 時，指示燈點亮 `綠色燈光`；
     - 數據 `6.1 ~ 10.0` 時，指示燈點亮 `紅色燈光`，並且當數據達 `9.0` 以上時，會另有蜂鳴器響起。
 4. 連接 SUNIX RS-422/485 Device Port 與 DTB4848 溫控器
-5. 經由 Modbus Protocol，讀取 DTB4848 溫控器的溫度與軟體版本，並變更
+5. 經由 Modbus Protocol，讀取 DTB4848 溫控器的溫度與軟體版本，並變更溫度單位顯示選擇
 
 
 # 練習記錄 [課題 1 - 3]
@@ -35,7 +35,7 @@
         - 數據為 `6.1 ~  10.0` 時，點亮紅光（紅線，即 DO1）；
         - 數據為 `9.0` 以上時，點亮紅光並響起蜂鳴（紅線與紫線，即 DO1 與 DO4）。
         - 範例：數據為 `9.5` 時，會產生 `[true, false, false, true]`。
-    - 設置 `publishLightSetting` 函數，依據傳入的 boolean array，發佈訊息到指定的 Topic。
+    - 設置 `publishLightSetting` 函數，依據傳入的 boolean array，發佈指令到指定的 Topic。
     ```
     this.mqttClient.emit(
         tatgetTopic, 
@@ -75,7 +75,7 @@ export class OutboundResponseSerializer implements Serializer {
 4. 修改 `src\message-event\message.module.ts` 檔案，於 `MQTT_CLIENT` 的 `options` 中追加 `serializer: new OutboundResponseSerializer()`
 
 #### 使用 serializer 的原因
-若無設置 `serializer`，在發佈訊息的 `this.mqttClient.emit` 函數會傳出以下訊息：
+若無設置 `serializer`，在發佈指令的 `this.mqttClient.emit` 函數會傳出以下訊息：
 ```
 {
     pattern: 'SUNIX/26:00:01_EZG1300/9a:00:c5_EZR5002/SET/DO_INTERFACE/CH_01',
@@ -85,18 +85,18 @@ export class OutboundResponseSerializer implements Serializer {
 發佈的訊息會由 `pattern` 與 `data` 構成，但這樣的結構不被設備接受，因此要調整成單有 `{ params: { stream: 'DO', type: 'bool', data: false }` 一段；經由 `src\message-event\mqtt.serializer.ts` 檔案的設置，`return value.data` 僅回傳了期望發佈的部分，藉此配合設備需求的結構。
 
 ## 實際測試
-透過訊號產生器產生電壓訊號，經由 SUNIX AI Device Port 接收並發佈至 MQTT Broker Server；之後經由 NestJS 訂閱指定 Topic，對接收到的數據進行邏輯處理，以發佈對應的訊息給 SUNIX DI/O Device Port。
+透過訊號產生器產生電壓訊號，經由 SUNIX AI Device Port 接收並發佈至 MQTT Broker Server；之後經由 NestJS 訂閱指定 Topic，對接收到的數據進行邏輯處理，以發佈對應的指令給 SUNIX DI/O Device Port。
 ![指示燈如預期運作](Image/02.png)
 
 # 練習記錄 [課題 4 - 5]
 此段落為 2023-06-01 新增課題的記錄。
 
 ## Modbus RTU
-在溫控器中，設置為透過 `Modbus RTU` 進行通訊，其訊息組成為：
+在溫控器中，設置為透過 `Modbus RTU` 進行通訊，其指令組成為：
 ```
 slaveId command offset(high) offset(low) length(high) length(low) CRC
 ```
-除 `CRC` 外，參考溫控器的使用手冊構成訊息，而 `CRC` 可以透過 [參考資料 [10]](#參考資料) 的網站協助計算；依據使用手冊組成一段訊息，並得出其 `CRC` 如下，對此溫控器而言，是讀取 PV 目前溫度值的訊息：
+除 `CRC` 外，參考溫控器的使用手冊構成指令，而 `CRC` 可以透過 [參考資料 [10]](#參考資料) 的網站協助計算；依據使用手冊組成一段指令，並得出其 `CRC` 如下，對此溫控器而言，是讀取 PV 目前溫度值的指令：
 ```
 01 03 10 00 00 02 C0 CB
 ```
@@ -104,13 +104,85 @@ slaveId command offset(high) offset(low) length(high) length(low) CRC
 ## 溫控器測試
 1. 使用轉接器，將個人電腦與溫控器設備連接
 ![直接與溫控器連接](Image/03.png)
-2. 透過 `Serial Port Utility`，對溫控器發送上述的讀取用 Modbus RTU 訊息：`01 03 10 00 00 02 C0 CB`
+2. 透過 `Serial Port Utility`，對溫控器發送上述的讀取用 Modbus RTU 指令：`01 03 10 00 00 02 C0 CB`
 3. 取得回傳：`01 03 04 00 F5 00 E6 6B 8B`
     - `00F5` 為 10 進制的 `245`，而 `00E6` 為 10 進制的 `230`，符合溫控器本身顯示的數值。
 
 ## 設備連接
-依照指示，連接 SUNIX RS-422/485 Device Port 與 DTB4848 溫控器
+依照指示，連接 SUNIX RS-422/485 Device Port 與 DTB4848 溫控器，並透過 MQTTX 確認 Gateway 有將指令發佈到特定的 Topic：
 ![設備連接簡圖](Image/04.png)
+
+## 經由 MQTTX 發送 Modbus RTU 指令
+### 讀取溫度數值
+依照指定格式（`stream` 固定為 `none`）讀取 PV 目前溫度值的指令：
+```
+{
+    "params": {
+        "stream": "none",
+        "type": "bypassarray",
+        "data": [1, 3, 16, 0, 0, 2, 192, 203]
+    }
+}
+```
+之後成功取得回應，且回應內容和預期相符：
+```
+{
+	"params":	{
+		"error_code":	0,
+		"error_str":	"Success",
+		"stream":	"none",
+		"type":	"bypassarray",
+		"data":	[1, 3, 4, 0, 242, 0, 230, 218, 74]
+	}
+}
+```
+
+### 讀取軟體版本
+參照 `DTB 系列溫度控制器操作手冊`，得出查詢軟體版本的 `Modbus RTU` 指令為 `01 03 10 2F 00 02`，其 CRC 則為 `F1 02`，轉換後發送至溫控器：
+```
+{
+    "params": {
+        "stream": "none",
+        "type": "bypassarray",
+        "data": [1, 3, 16, 47, 0, 2, 241, 2]
+    }
+}
+```
+成功取得回應，並依據 index `3` 與 `4` 以及操作手冊提及 `V1.00 表示為 0x100` 推算，目前軟體版本應該是 `V1.60`：
+```
+{
+	"params":	{
+		"error_code":	0,
+		"error_str":	"Success",
+		"stream":	"none",
+		"type":	"bypassarray",
+		"data":	[1, 3, 4, 1, 96, 0, 0, 251, 209]
+	}
+}
+```
+
+### 變更溫度單位顯示選擇
+參照 `DTB 系列溫度控制器操作手冊`，得出查詢軟體版本的 `Modbus RTU` 指令為 `01 05 08 11 00 00`，其 CRC 則為 `9F AF`，轉換後發送至溫控器：
+```
+{
+    "params": {
+        "stream": "none",
+        "type": "bypassarray",
+        "data": [1, 5, 8, 17, 0, 0, 159, 175]
+    }
+}
+```
+發送後，溫控器確實轉換成華氏顯示，之後再發送 `01 05 08 11 FF 00 DE 5F` 至溫控器：
+```
+{
+    "params": {
+        "stream": "none",
+        "type": "bypassarray",
+        "data": [1, 5, 8, 17, 255, 0, 222, 95]
+    }
+}
+```
+確實變回攝氏顯示。
 
 # 參考資料
 1. [三泰科技 - 雲服務轉譯器Gateway](https://www.sunix.com/tw/product_detail.php?cid=2&kid=4&gid=25&pid=2110)
@@ -134,3 +206,5 @@ slaveId command offset(high) offset(low) length(high) length(low) CRC
     - 持續進行 Topic. 12
 4. 2023-06-02
     - 持續進行 Topic. 12
+5. 2023-06-06
+    - 完成 Topic. 12
