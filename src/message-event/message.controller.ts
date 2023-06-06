@@ -17,6 +17,7 @@ export class MessageController {
 
     @MessagePattern('SUNIX/26:00:01_EZG1300/97:00:fb_EZR5231/GET/AI_INTERFACE/CH_01')
     receiveData_EZG1300_AI_01(@Payload() payload: number[], @Ctx() context: MqttContext) {
+      console.log(payload);
       this.sunixService.setLight(payload);
     }
 }
