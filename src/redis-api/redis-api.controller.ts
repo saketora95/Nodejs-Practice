@@ -26,4 +26,10 @@ export class RedisApiController {
     deleteData(@Param('key') key: string) {
         return this.redisAPIService.deleteData(key);
     }
+
+    // Mutex
+    @Get('mutex/treasure')
+    async getTreasure(): Promise<string> {
+        return await this.redisAPIService.getTreasure();
+    }
 }
