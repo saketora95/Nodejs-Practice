@@ -24,6 +24,7 @@ async getTreasure(): Promise<string> {
 修改 `src\redis-api\redis-api.service.ts` 檔案，設置 `getTreasure` 函數進行處理：
 - 使用 `get('treasureMutex')` 取得 `treasureMutex` 的數值。
     - 為 `null` 表示互斥鎖已經消失，可以對 `treasure` 進行處理。
+        - 使用 `set('treasureMutex', true, { ttl: 10 } as any)` 先行加上互斥鎖。
         - 使用 `get('treasure')` 檢查 `treasure` 的數值。
         - 若為 `null` 則設置為 `初始值 (100) + 1`，若已有數值則將 `+ 1`；並將結果回傳給請求來源。
     - 為 `true` 或其他數值表示互斥鎖仍存在，不可以對 `treasure` 進行處理。
