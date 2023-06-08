@@ -28,6 +28,9 @@ import { MQTTModule } from './mqtt/mqtt.module';
 import { MQTTService } from './mqtt/mqtt.service';
 import { MessageService } from './message-event/message.service';
 
+// Redis Mutex
+import { RedisModule } from '@liaoliaots/nestjs-redis';
+
 @Module({
   imports: [
     VideoInfoModule,
@@ -64,6 +67,16 @@ import { MessageService } from './message-event/message.service';
 
     // MQTT
     // MQTTModule,
+
+    // nestjs-redis
+    RedisModule.forRoot({
+      config: {
+        host: 'redis',
+        port: 6379,
+        username: 'tora',
+        password: '1234',
+      }
+    }),
   ],
   controllers: [AppController, HelloworldController],
   providers: [

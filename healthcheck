@@ -1,0 +1,11 @@
+#!/bin/bash
+
+status_code=$(curl --write-out %{http_code} --silent --output /dev/null http://127.0.0.1:4000/helloworld)
+
+if [[ "$status_code" -ne 200 ]] ; then
+  echo "Site status changed to $status_code"
+  exit 1
+else
+  echo "Status is 200"
+  exit 0
+fi

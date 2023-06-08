@@ -1,0 +1,73 @@
+# ----- ----- ----- ----- -----
+# Prebuild Stage
+# ----- ----- ----- ----- -----
+
+# 開啟 Stage 並使用 Image
+# 18.16.0 是目前個人電腦開發環境的 Node 版本
+FROM node:18.16.0-alpine AS Prebuild
+
+# 設置工作目錄
+WORKDIR /usr/src/app
+
+# 複製檔案並設置 user 與 group
+COPY --chown=node:node . .
+
+# 安裝套件
+RUN npm ci --production=false
+
+# 設置 container 內執行命令的 user 為 node
+# 避免透過 root 進行操作
+USER node
+
+# ----- ----- ----- ----- -----
+# Build Stage
+# ----- ----- ----- ----- -----
+
+# 開啟 Stage 並使用 Image
+FROM node:18.16.0-alpine AS Build
+
+# 設置工作目錄
+WORKDIR /usr/src/app
+
+# 複製檔案
+COPY --chown=node:node . .
+
+# 複製 Prebuild 下載的套件
+COPY --chown=node:node --from=Prebuild /usr/src/app/node_modules ./node_modules
+
+## 建置環境並整理套件為僅保留發行所需的版本
+RUN npm run build && \
+    npm ci --only=production && \
+    npm cache clean --force
+
+# 設置 container 內執行命令的 user 為 node
+USER node
+
+# ----- ----- ----- ----- -----
+# Deploy Stage
+# ----- ----- ----- ----- -----
+
+# 開啟一個 stage
+# 指定使用的 image，並將此 stage 命名為 Deploy
+FROM node:18.16.0-alpine As Deploy
+
+# 指定工作目錄位置
+WORKDIR /code
+
+RUN apk update && \
+    apk add bash --no-cache bash curl && \
+    rm -rf /var/cache/apk/*
+
+# 從 build stage，複製必要資料
+# 使用 chown，將檔案的 user 和 group 都設為 node
+COPY --chown=node:node --from=Build /usr/src/app/ecosystem.config.js .
+COPY --chown=node:node --from=Build /usr/src/app/dist ./dist
+COPY --chown=node:node --from=Build /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=Build /usr/src/app/resource ./resource
+COPY --chown=node:node ./healthcheck /usr/local/bin/healthcheck
+
+# 使用 npm 安裝 PM2
+RUN npm install -g @socket.io/pm2
+
+# 透過 PM2 啟動環境，並設置環境變數
+CMD [ "pm2-runtime", "start", "ecosystem.config.js" ]

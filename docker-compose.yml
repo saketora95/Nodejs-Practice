@@ -3,6 +3,19 @@ version: '3.8'
 
 services:
 
+  # Health Check
+  # autoheal:
+  #   image: willfarrell/autoheal:latest
+  #   tty: true
+  #   container_name: autoheal
+  #   restart: always
+  #   labels:
+  #     - "autoheal=true"
+  #   environment:
+  #     - AUTOHEAL_CONTAINER_LABEL=all
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+
   # NestJS container 
   node:
     build:
@@ -17,6 +30,13 @@ services:
       - nest-network
     environment:
       - TZ=Asia/Taipei
+    # labels:
+    #   - "autoheal=true"
+    # healthcheck:
+    #   test: [ "CMD", "/usr/local/bin/healthcheck" ]
+    #   interval: 10s
+    #   timeout: 3s
+    #   retries: 3
   
   # Redis container 
   redis:

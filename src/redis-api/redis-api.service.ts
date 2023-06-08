@@ -2,12 +2,19 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 
+import { RedisService } from '@liaoliaots/nestjs-redis';
+import Redis from 'ioredis';
 
 @Injectable()
 export class RedisApiService {
+    private readonly redis: Redis;
+    
     constructor(
         @Inject(CACHE_MANAGER) private cacheService: Cache,
-    ) {}
+        private readonly redisService: RedisService
+    ) {
+        this.redis = this.redisService.getClient();
+    }
 
     // SET
     async setData(key: string, value: string) {
@@ -33,44 +40,25 @@ export class RedisApiService {
     async getTreasure() {
         console.log('GET Treasure API Actice -----');
 
-        // 檢查 treasureMutex
-        // 尚未鎖定
-        if (await this.cacheService.get('treasureMutex') == null) {
-            
-            // 鎖定 treasure
-            await this.cacheService.set('treasureMutex', true, { ttl: 10 } as any);
-            
+        // 成功上鎖 = 執行當下沒有鎖定，調整 treasure 數值後回傳
+        if ((await this.redis.set('tLock', '1', 'EX', 10, 'NX')) === 'OK') {
+
             // 取得 treasure 數值
-            let tempTreasure = parseInt(await this.cacheService.get('treasure'));
+            let treasureValue = parseInt(await this.redis.get('treasure'));
 
-            // treasure 尚未設置
-            if (isNaN(tempTreasure)) {
-                // 初次設置 treasure 數值 100 並因為呼叫 API 再 +1
-                tempTreasure = 100 + 1;
-                await this.cacheService.set('treasure', tempTreasure);
-
-                return `初次設置 treasure 數值為 ${tempTreasure} 並鎖定。`;
+            // 若 treasue 尚未初始化，設置初始數值
+            if (isNaN(treasureValue)) {
+                await this.redis.set('treasure', 100);
+                return `[treasure 數值 : null → 100 ] 執行時未上鎖，且 treasure 尚未初始化，此次 API 呼叫給予初始數值。`;
             }
 
-            // treasure 已經曾被設置
-            else {
-                // 因為呼叫 API treasure +1
-                tempTreasure += 1;
-                await this.cacheService.set('treasure', tempTreasure);
-
-                return `目前 treasure 數值是 ${tempTreasure} 並已經鎖定。`;
-            }
+            // 先前已完成初始化，設置新數值
+            await this.redis.set('treasure', treasureValue + 1);
+            return `[treasure 數值 : ${treasureValue} → ${treasureValue + 1} ] 執行時未上鎖，此次 API 呼叫提高了 treasure 的數值。`;
         }
 
-        // 鎖定狀態
-        else {
-            // 取得 treasure 數值
-            let tempTreasure = parseInt(await this.cacheService.get('treasure'));
-
-            // 回傳
-            console.log(`- return ${tempTreasure}`);
-            return `目前 treasure 數值是 ${tempTreasure} 並因為處於鎖定狀態，本次 API 執行並沒有增加數值。`;
-        }
+        // 上鎖失敗 = 仍在鎖定中，回傳 treasure 數值
+        return `[treasure 數值 : ${await this.redis.get('treasure')} ] 執行時上鎖中，此次 API 呼叫沒有改變數值。`;
     }
 
 }
