@@ -26,3 +26,7 @@
 12. [Topic - 12](https://github.com/saketora95/Nodejs-Practice/tree/Topic-12)
 13. [Topic - 13](https://github.com/saketora95/Nodejs-Practice/tree/Topic-13)
 14. [Topic - 14](https://github.com/saketora95/Nodejs-Practice/tree/Topic-14)
+
+# 測驗連結
+1. [Test - 1 : RedisMutex](https://github.com/saketora95/Nodejs-Practice/tree/Test-01-RedisMutex)
+2. [Test - 2 : RedisCache](https://github.com/saketora95/Nodejs-Practice/tree/Test-02-RedisCache)
