@@ -47,17 +47,17 @@ import { RedisModule } from '@liaoliaots/nestjs-redis';
     RedisApiModule,
 
     // MariaDB & TypeORM
-    // TypeOrmModule.forRoot({
-    //   type: 'mariadb',
-    //   host: 'host.docker.internal',
-    //   port: 3306,
-    //   username: 'root',
-    //   password: '1234',
-    //   database: 'mysql',
-    //   entities: [FruitPrice],
-    //   synchronize: true,
-    // }),
-    // MariaApiModule,
+    TypeOrmModule.forRoot({
+      type: 'mariadb',
+      host: 'host.docker.internal',
+      port: 3306,
+      username: 'root',
+      password: '1234',
+      database: 'mysql',
+      entities: [FruitPrice],
+      synchronize: true,
+    }),
+    MariaApiModule,
 
     // Socket
     SocketModule,

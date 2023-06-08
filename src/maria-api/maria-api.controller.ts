@@ -13,6 +13,15 @@ import { MariaApiService } from './maria-api.service';
 export class MariaApiController {
     constructor(private readonly mariaApiService: MariaApiService){}
 
+    // Redis Cache
+
+    @Get('cache/:key')
+    async getSQLCache(@Param('key') key:string): Promise<string> {
+        return await this.mariaApiService.getCache(key);
+    }
+
+    // Basic Process
+
     @Post()
     async createFruit(@Res() response, @Body()fruit: FruitPrice) {
         const newFruit = await this.mariaApiService.createFruit(fruit);
