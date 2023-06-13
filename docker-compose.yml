@@ -83,7 +83,17 @@ services:
       - nest-network
     environment:
       - TZ=Asia/Taipei
-  
+
+  node-red:
+    image: nodered/node-red:latest
+    ports:
+      - 1880:1880
+    volumes:
+      - ./node-red-data:/data
+    networks:
+      - node-network
+    depends_on:
+      - mosquitto
 
 volumes:
   redis:

@@ -33,4 +33,7 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
-ecosystem.config.js
+ecosystem.config.json
+
+# Node-Red
+node-red-data
