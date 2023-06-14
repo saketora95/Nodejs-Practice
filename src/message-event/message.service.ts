@@ -52,4 +52,14 @@ export class MessageService {
         }
     }
 
+    public pubLight(@Payload() payload: number[]) {
+
+        this.mqttClient.emit(
+            'RED:Switch_Lamp', 
+            {
+                onoff: payload['onoff']
+            }
+        );
+    }
+
 }

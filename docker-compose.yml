@@ -91,7 +91,7 @@ services:
     volumes:
       - ./node-red-data:/data
     networks:
-      - node-network
+      - nest-network
     depends_on:
       - mosquitto
 
